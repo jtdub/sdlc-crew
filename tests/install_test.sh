@@ -77,7 +77,9 @@ if "$REPO_DIR/install.sh" --harness claude-code >/dev/null 2>"$TMP/err"; then
     fail "install did not report the conflict"
 fi
 grep -q "skipped: $HOME/.claude/skills/sdlc-qa" "$TMP/err" || fail "conflict message missing"
-[ -d "$HOME/.claude/skills/sdlc-qa" ] && [ ! -L "$HOME/.claude/skills/sdlc-qa" ] || fail "the existing directory was replaced"
+if [ ! -d "$HOME/.claude/skills/sdlc-qa" ] || [ -L "$HOME/.claude/skills/sdlc-qa" ]; then
+    fail "the existing directory was replaced"
+fi
 rmdir "$HOME/.claude/skills/sdlc-qa"
 
 echo "== dry run changes nothing"
