@@ -1,0 +1,20 @@
+{
+  "name": "sdlc-crew",
+  "version": "0.1.0",
+  "description": "A crew of four personas (architect, engineer, QA, UX) that takes a plain-language request or an issue to a pull request that is ready for a human to review. Works with a local backlog, GitHub Issues, GitLab, Jira, or Bitbucket.",
+  "author": {
+    "name": "jtdub",
+    "url": "https://github.com/jtdub"
+  },
+  "homepage": "https://github.com/jtdub/sdlc-crew",
+  "repository": "https://github.com/jtdub/sdlc-crew",
+  "license": "Apache-2.0",
+  "keywords": ["sdlc", "workflow", "agents", "skills", "tdd", "code-review", "pull-request"],
+  "skills": "./skills",
+  "agents": [
+    "./adapters/claude-code/agents/sdlc-architect.md",
+    "./adapters/claude-code/agents/sdlc-engineer.md",
+    "./adapters/claude-code/agents/sdlc-qa.md",
+    "./adapters/claude-code/agents/sdlc-ux.md"
+  ]
+}

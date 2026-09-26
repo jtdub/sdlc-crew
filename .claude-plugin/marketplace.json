@@ -1,0 +1,15 @@
+{
+  "name": "sdlc-crew",
+  "description": "The sdlc-crew workflow plugin",
+  "owner": {
+    "name": "jtdub",
+    "url": "https://github.com/jtdub"
+  },
+  "plugins": [
+    {
+      "name": "sdlc-crew",
+      "source": "./",
+      "description": "A crew of four personas that takes a request to a reviewable pull request."
+    }
+  ]
+}
