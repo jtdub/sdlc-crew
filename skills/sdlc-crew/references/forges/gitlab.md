@@ -39,6 +39,32 @@ glab mr update <MR> --description-file "$RUN_DIR/pr-body.md"
 glab mr note <MR> --message "$(cat "$RUN_DIR/<file>.md")"
 ```
 
+### Read comments
+
+Each discussion is one thread. Keep the discussions that have a note that is
+resolvable and not resolved, and the general notes that are not system notes:
+
+```bash
+glab api --paginate "projects/:fullpath/merge_requests/<MR>/discussions" \
+  --jq '.[] | select(any(.notes[]; (.resolvable and (.resolved | not)) or (.individual_note and (.system | not))))
+        | {id, notes: [.notes[] | {id, author: .author.username, body, path: .position.new_path, line: .position.new_line, created_at}]}'
+```
+
+### Reply comment
+
+```bash
+glab api -X POST "projects/:fullpath/merge_requests/<MR>/discussions/<discussion id>/notes" \
+  -f body="$(cat "$RUN_DIR/<file>.md")"
+```
+
+### Resolve thread
+
+```bash
+glab api -X PUT "projects/:fullpath/merge_requests/<MR>/discussions/<discussion id>" -f resolved=true
+```
+
+A general note is not resolvable. Reply only.
+
 ### Ready
 
 ```bash

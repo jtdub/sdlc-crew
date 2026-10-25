@@ -24,6 +24,7 @@ does not set. Each key has the default in the table.
 | `forge.repo` | `""` | `owner/name`. Empty means: read it from the `origin` remote. |
 | `forge.default_branch` | `""` | Empty means: ask the forge. |
 | `forge.branch_pattern` | `sdlc/{id}-{slug}` | `{id}` is the work item ID in lowercase. `{slug}` is the summary, lowercase, words joined with `-`, 40 characters or less. |
+| `forge.worktree_dir` | `../{repo}-worktrees` | The directory that holds the git worktree of each work unit. `{repo}` is the directory name of the repository. A relative path starts at the repository root. Keep it outside the repository, so the tests and the tools of the project do not scan it. |
 | `forge.assign_to_me` | `true` | Assign the pull request to the account that runs the workflow. |
 | `models.plan` | `inherit` | The model of the architect. |
 | `models.build` | `inherit` | The model of the engineer. |

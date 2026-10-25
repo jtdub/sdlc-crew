@@ -26,7 +26,7 @@ Write all prose in ASD-STE100 Simplified Technical English.
 
 | Value | Meaning |
 |---|---|
-| `ID`, `CHILD`, `PLAN`, `RUN_DIR`, `REPO_DIR`, `CONFIG` | As for the engineer. |
+| `ID`, `CHILD`, `PLAN`, `RUN_DIR`, `REPO_DIR`, `WORK_DIR`, `CONFIG` | As for the engineer. |
 | `PR` | The pull request number or URL, or the branch name with `forge.kind: none`. |
 
 `project.run_command`, `project.app_url`, and `project.screenshots` come from
@@ -42,13 +42,13 @@ Write all prose in ASD-STE100 Simplified Technical English.
 - Do not hardcode credentials. Read them from the development environment files, and
   pass them as environment variables.
 - Do not put a secret, a token, or personal data in a screenshot.
-- Run all `git` and forge commands in `REPO_DIR`.
+- Run all `git` and forge commands, and the test environment, in `WORK_DIR`.
 
 ## Step 1 — Read the plan
 
 1. Read the "UX test plan" and the acceptance criteria in the plan. If `CHILD` is not
    `none`, read only the section of that child.
-2. Check out the pull request branch, as QA does.
+2. Pull the latest commits in `WORK_DIR`, as QA does.
 3. If the plan says "No user-facing change", and the diff agrees, write the reason
    to `RUN_DIR/ux-report.md`. Go to Step 5 with `STATUS: NO_UI`.
 

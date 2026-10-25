@@ -16,7 +16,9 @@ list, and post the comments that the person selects.
 
 `$ARGUMENTS`: an optional target (a pull request number, a branch, or a path), and
 the optional flag `--handoff`. If the target is a pull request or a branch that is
-not checked out, check it out first. A path target limits the reviews to that path.
+not checked out, find or add its worktree as "Worktree" in
+`../sdlc-crew/references/forges/README.md` says, and run the review there. Do not
+switch the branch of the current checkout. A path target limits the reviews to that path.
 
 `--handoff`: the `sdlc-qa` persona passes it. In handoff mode, the skill does not
 talk to a human and does not write to the pull request:

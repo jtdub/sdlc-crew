@@ -31,11 +31,14 @@ tracker:
 # Where the code and the pull requests live.
 #   github | gitlab | bitbucket | none
 # With none, the workflow makes branches and commits but opens no pull request.
+# worktree_dir is where the crew makes one git worktree for each pull request.
+# The crew never changes the branch or the files of your own checkout.
 forge:
   kind: github
   repo: ""
   default_branch: ""
   branch_pattern: "sdlc/{id}-{slug}"
+  worktree_dir: "../{repo}-worktrees"
   assign_to_me: true
 
 # Which model each role uses. The value is a model name that your harness accepts,

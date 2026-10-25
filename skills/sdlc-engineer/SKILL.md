@@ -31,6 +31,7 @@ body and every commit message for a reader who did not see the code.
 | `PLAN` | The absolute path of the approved plan. |
 | `RUN_DIR` | The run directory of this unit. |
 | `REPO_DIR` | The absolute path of the local clone. |
+| `WORK_DIR` | The absolute path of the worktree of this unit. Step 2 creates it. On a resume, the orchestrator gives it. |
 | `BASE_BRANCH` | The branch that the work starts from and that the pull request merges into. |
 | `DEPENDS_ON` | The pull request URLs that this unit depends on, or `none`. |
 | `CONFIG` | The values of `.sdlc-crew.yaml`: `person.experience`, `forge.*`, `project.*`, `limits.*`. |
@@ -44,7 +45,8 @@ that file and `../sdlc-crew/references/forges/README.md` before Step 2.
 - Make the smallest change that meets the plan. Do not refactor code that the plan
   does not name. Do not add a feature that the plan does not name.
 - Keep all changes inside the scope of the work item. For a child, inside that child.
-- Run all `git` and forge commands in `REPO_DIR`.
+- Run `git worktree` commands in `REPO_DIR`. Run every other command, and make every
+  file change, in `WORK_DIR`. Never switch the branch of `REPO_DIR`.
 - Follow the conventions of the code near the change.
 - If the plan is wrong, incomplete, or unclear, stop. Return `STATUS: QUESTIONS` with
   the question. Do not guess.
@@ -83,12 +85,18 @@ that file and `../sdlc-crew/references/forges/README.md` before Step 2.
    commit, before the feature work. Each item gets one sentence in the pull request
    body.
 
-## Step 2 — Create the branch
+## Step 2 — Create the worktree
 
 Make the slug from the item summary: lowercase, words joined with `-`, 40 characters
-or less. Fill `forge.branch_pattern`. Create the branch as the forge README shows.
+or less. Fill `forge.branch_pattern`. Create the branch in a new worktree as
+"Worktree" in the forge README shows. Record `WORK_DIR`.
 
 If `BASE_BRANCH` is the branch of another child, this branch stacks on that branch.
+The worktree of the other child stays as it is.
+
+If the project needs setup in a new checkout, for example a dependency install or a
+copy of a local `.env` file, do it in `WORK_DIR`. Copy a local `.env` file only from
+`REPO_DIR`, and never commit it.
 
 ## Step 3 — Build with TDD
 
@@ -151,14 +159,16 @@ Add the changelog entry that the plan names:
     `STACK: not available`, or `STACK: none`.
 
 Return `STATUS: DRAFT_PR` with the pull request number and URL (or the branch name),
-the base branch, the `STACK` result, `DIFF_LINES`, the test command, and the test
+the base branch, `WORK_DIR`, the `STACK` result, `DIFF_LINES`, the test command, and the test
 result.
 
 ## Step 6 — Fix findings
 
-The orchestrator sends you a QA findings file or a list of UX defects.
+The orchestrator sends you a QA findings file, a list of UX defects, or the triage
+file of `--feedback` mode. For a triage file, a finding is a comment with the verdict
+VALID.
 
-1. Read every finding.
+1. Read every finding. Work in `WORK_DIR`. Run `git pull --ff-only` there first.
 2. Fix every finding, of all priorities. For a defect in behavior, write a failing
    test first.
 3. Do not change code outside the scope of the work item. If a fix needs such a
@@ -166,8 +176,8 @@ The orchestrator sends you a QA findings file or a list of UX defects.
 4. If a fix breaks a test, or if it goes against the plan, do not apply it. Report it
    as "not applied" with the evidence: a `path:line` or the test output.
 5. Run the full test suite.
-6. Commit with the message `<ID>: Address QA round <N> findings` or
-   `<ID>: Address UX findings`.
+6. Commit with the message `<ID>: Address QA round <N> findings`,
+   `<ID>: Address UX findings`, or `<ID>: Address review feedback`.
 7. Push the commits, unless `forge.kind` is `none`.
 
 Return `STATUS: FIXED` with one line for each finding: the number, "fixed" or "not

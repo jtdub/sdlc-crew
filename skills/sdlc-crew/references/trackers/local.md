@@ -76,11 +76,15 @@ branch name in place of the URL.
 ## Commits to `BACKLOG.md`
 
 The workflow changes `BACKLOG.md` on the default branch, not on the feature branch,
-so the tracker state does not wait for the merge. Before each write:
+so the tracker state does not wait for the merge. Do not switch a branch to do it.
+Before each write:
 
-1. `git stash` nothing. If the working tree has changes outside `BACKLOG.md` and
+1. Find the worktree of the default branch with `git worktree list --porcelain`. It
+   is often the checkout of the person. If no worktree has the default branch, add
+   one as "Worktree" in `../forges/README.md` says.
+2. `git stash` nothing. If that worktree has changes outside `BACKLOG.md` and
    `docs/plans/`, stop and tell the person.
-2. Switch to the default branch, edit the file, commit with the message
-   `<ID>: <what changed>`, and switch back.
-3. Push only if the person agreed to pushes in `sdlc-setup`. Otherwise tell the person
+3. Edit the file in that worktree, and commit with the message
+   `<ID>: <what changed>`.
+4. Push only if the person agreed to pushes in `sdlc-setup`. Otherwise tell the person
    that the commit is local.

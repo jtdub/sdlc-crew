@@ -17,7 +17,8 @@ Rules:
 - Start each persona with the agent tool of the harness and the persona name. The
   install put a persona definition in the place that the harness reads.
 - Give the persona every value that it needs in the first message: the work item ID,
-  the absolute path of `RUN_DIR`, the repository path, the base branch, and the
+  the absolute path of `RUN_DIR`, the repository path, the worktree path when it
+  exists, the base branch, and the
   values from `.sdlc-crew.yaml` that the persona skill lists.
 - A persona cannot talk to the person. When the persona returns `STATUS: QUESTIONS`,
   ask the person, then send the answers back to the same persona instance. Quote the
