@@ -1,6 +1,6 @@
 ---
 name: sdlc-crew
-description: Run a work item through the full software development life cycle with four personas (architect, engineer, QA, UX), from a plain-language request or an issue to a pull request that is ready for a human to review. Use only when the person runs /sdlc-crew, or asks by name for the crew or the sdlc-crew workflow to build a feature, fix a bug, or set up infrastructure. Takes an issue ID or a quoted description as the argument. Works with a local backlog file, GitHub Issues, GitLab Issues, Jira, or Bitbucket.
+description: Run a work item through the full software development life cycle with four personas (architect, engineer, QA, UX), from a plain-language request or an issue to a pull request that is ready for a human to review. Use only when the person runs /sdlc-crew, or asks by name for the crew or the sdlc-crew workflow to build a feature, fix a bug, or set up infrastructure. Takes an issue ID or a quoted description as the argument. Works with a local backlog file, GitHub Issues, GitLab Issues, Jira, or Bitbucket. With --feedback and a pull request, reads the review comments, fixes the problems that they raise, and replies to each comment.
 license: Apache-2.0
 compatibility: Needs git. Needs the tracker and forge tools that .sdlc-crew.yaml names. Works in Claude Code, Codex CLI, Gemini CLI, GitHub Copilot CLI, and any harness that loads Agent Skills.
 metadata:
@@ -24,6 +24,14 @@ state, and moves the work between four personas:
 description. With no argument, ask the person what they want to build, in one
 question.
 
+`--feedback [TARGET]`: act on the review comments of an open pull request. `TARGET`
+is a pull request number, a pull request URL, or a work item ID. Follow
+`references/feedback.md` in place of Steps 1 to 6.
+
+Each work unit gets its own git worktree. The crew never switches the branch of the
+checkout of the person, and never changes its files, except `BACKLOG.md` as
+`trackers/local.md` says.
+
 Write all prose in ASD-STE100 Simplified Technical English. Follow
 `../sdlc-review/references/plain-language.md` in every message to the person.
 
@@ -37,7 +45,8 @@ them:
 - `models.md` — the model roles.
 - `trackers/<kind>.md` — the six tracker operations.
 - `forges/<kind>.md` and `forges/README.md` — the forge operations, the branch name,
-  the template search, and the diff measurement.
+  the worktree, the template search, and the diff measurement.
+- `feedback.md` — the steps of `--feedback`.
 
 ## Rules for the orchestrator
 
@@ -72,9 +81,10 @@ them:
 
    Then the Identify operation of the forge file, and the auth check of the tracker
    file.
-5. If the working tree has changes, stop. Tell the person to commit or stash the
-   changes, and offer to commit them with a message that the person approves. Do not
-   stash for the person.
+5. If the working tree has changes, tell the person that the crew works in a
+   separate worktree that starts from the remote base branch. Changes that are not committed and
+   pushed do not go into the pull request. Ask whether to continue. Do not commit,
+   stash, or discard the changes for the person.
 6. If a forge or tracker check fails, show the output in plain words. Offer
    `sdlc-setup` to change the config, or to continue with `forge.kind: none` and
    `tracker.kind: local` for this run.
@@ -147,6 +157,7 @@ unit:
 | `CHILD` | `none` |
 | `UNIT_DIR` | `RUN_DIR` |
 | `REPO_DIR` | the top level of the current repository |
+| `WORK_DIR` | set by the engineer in Step 2 |
 | `BASE_BRANCH` | the default branch |
 | `DEPENDS_ON` | `none` |
 
@@ -171,11 +182,12 @@ If the plan splits the item:
 | `CHILD` | the child ID, for example `C2` |
 | `UNIT_DIR` | `RUN_DIR/<UNIT_ID>/`, with `screenshots/` |
 | `REPO_DIR` | the local clone of the child repository |
+| `WORK_DIR` | set by the engineer in Step 2 |
 | `BASE_BRANCH` | the branch of the `same_repo_parent` child, or the default branch of the child repository |
 | `DEPENDS_ON` | the pull request URLs of the `depends_on` children, or `none` |
 
-Write the units to `RUN_DIR/units.md`. Update the file when a unit gets a branch or a
-pull request. A new session can continue from this file.
+Write the units to `RUN_DIR/units.md`. Update the file when a unit gets a branch, a
+worktree, or a pull request. A new session can continue from this file.
 
 ## Work unit loop
 
@@ -187,7 +199,8 @@ For each unit:
 2. Start a new engineer, a new QA, and a new UX persona for the unit. Do not resume
    the personas of an earlier unit.
 3. Give every persona `UNIT_ID`, `UNIT_DIR`, `CHILD`, `PLAN`, `REPO_DIR`,
-   `BASE_BRANCH`, `DEPENDS_ON`, `CONFIG`, and for a child `PARENT_ID`.
+   `BASE_BRANCH`, `DEPENDS_ON`, `CONFIG`, and for a child `PARENT_ID`. After Step 2,
+   also give `WORK_DIR`.
 4. Tell the person which unit starts: the ID, the summary, the repository, and the
    base branch.
 
@@ -204,10 +217,10 @@ see that repository can see the branch. Continue?" Wait.
 Start the `sdlc-engineer` persona with `models.build`.
 
 The engineer returns `STATUS: DRAFT_PR` with the pull request number and URL, the
-base branch, the `STACK` result, `DIFF_LINES`, the test command, and the test result.
+base branch, `WORK_DIR`, the `STACK` result, `DIFF_LINES`, the test command, and the test result.
 It can also return `STATUS: QUESTIONS` or `STATUS: BLOCKED`.
 
-Record the branch and the pull request URL in `RUN_DIR/units.md`.
+Record the branch, `WORK_DIR`, and the pull request URL in `RUN_DIR/units.md`.
 
 If `DIFF_LINES` is more than `limits.max_pr_lines`, tell the person the count, the
 limit, and the plan estimate. Ask: "Continue with this pull request, or leave it in
@@ -270,8 +283,8 @@ If `DEFECTS`:
 6. If `UNIT_ID` is a child and the last unit, set the parent to `in_review` only if
    the pull request of every child is ready.
 
-With `forge.kind: none`, skip 1 to 4. Tell the person the branch name, and that the
-change is in the local repository only.
+With `forge.kind: none`, skip 1 to 4. Tell the person the branch name, the
+`WORK_DIR` path, and that the change is in the local repository only.
 
 ## Step 6 — Retrospective
 
@@ -283,11 +296,16 @@ change is in the local repository only.
    full file.
 4. Do the Comment operation with the retrospective on the parent item only.
 5. Report to the person: the pull request URL, its state, the item status, the QA
-   round count, the UX status, and each item that the workflow did not complete. If
-   the plan split the item, give one row for each child and the merge order.
-6. For `person.experience: new`, end with what to do next in three sentences: open
+   round count, the UX status, the `WORK_DIR` path, and each item that the workflow
+   did not complete. If the plan split the item, give one row for each child and the
+   merge order.
+6. Tell the person that the worktree stays, so `/sdlc-crew --feedback <PR>` can use
+   it after the review. Give the command that removes it after the merge:
+   `git worktree remove <WORK_DIR>`. Do not remove it yourself.
+7. For `person.experience: new`, end with what to do next in three sentences: open
    the pull request page, read the User impact section, and press the merge button
-   when they are satisfied, or ask the crew for a change.
+   when they are satisfied, or run `/sdlc-crew --feedback <PR>` after a reviewer
+   adds comments.
 
 If the architect cannot resume, start a new architect with the same files, and tell
 it to write the retrospective only.
@@ -295,8 +313,10 @@ it to write the retrospective only.
 ## Continue a run
 
 If the person runs `/sdlc-crew <ID>` and `RUN_DIR/units.md` exists for that ID,
-read it and continue from the first unit that has no ready pull request. Tell the
-person where the run continues.
+read it and continue from the first unit that has no ready pull request. Use the
+`WORK_DIR` of the unit if it is in the file and `git worktree list` shows it.
+Otherwise add the worktree again, as `forges/README.md` says. Tell the person where
+the run continues.
 
 ## Common mistakes
 
@@ -316,4 +336,8 @@ person where the run continues.
 - Do not mark the pull request ready if the person selected "leave it in draft".
 - Do not set the item to `in_review` while the pull request is a draft.
 - Do not stash, reset, or discard the changes of the person.
+- Do not switch the branch of the checkout of the person. Use the worktree.
+- Do not remove a worktree without the consent of the person.
+- In `--feedback` mode, do not post a reply or resolve a thread before the person
+  agrees. Do not resolve a thread that the crew did not fix.
 - Do not approve, merge, or request a reviewer on the pull request.

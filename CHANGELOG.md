@@ -11,4 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added the `sdlc-crew` workflow: one command takes a work item from a plain-language description or an issue to a pull request that is ready for a human to review.
 - Added the `sdlc-setup` skill. It asks plain questions and writes the `.sdlc-crew.yaml` config file.
+- Added `/sdlc-crew --feedback <PR>`. The crew reads the review comments of a pull request, fixes the valid ones, and replies to each comment.
+- Added a git worktree for each pull request. Your own checkout keeps its branch and its files. Set `forge.worktree_dir` to change the place.
 - Added the `install.sh` script. It installs the skills and the persona agents for Claude Code, Codex CLI, Gemini CLI, and GitHub Copilot.

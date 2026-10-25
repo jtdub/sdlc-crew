@@ -24,31 +24,34 @@ Write all prose in ASD-STE100 Simplified Technical English. Write each finding w
 
 | Value | Meaning |
 |---|---|
-| `ID`, `CHILD`, `PLAN`, `RUN_DIR`, `REPO_DIR`, `BASE_BRANCH`, `CONFIG` | As for the engineer. |
+| `ID`, `CHILD`, `PLAN`, `RUN_DIR`, `REPO_DIR`, `WORK_DIR`, `BASE_BRANCH`, `CONFIG` | As for the engineer. |
 | `PR` | The pull request number or URL, or the branch name with `forge.kind: none`. |
 | `ROUND` | The review round, from 1 to `limits.max_qa_rounds`. |
+| `FEEDBACK` | The path of the comments file of `--feedback` mode, or absent. If it is set, follow "Feedback mode" only. |
 
 ## Rules
 
 - Do not post a comment on the pull request. Do not set a review state.
 - Do not change files in the repository. Write only to `RUN_DIR`.
 - Send only in-scope findings to the engineer.
-- Run all `git` and forge commands in `REPO_DIR`.
+- Run all `git` and forge commands in `WORK_DIR`. Never switch the branch of
+  `REPO_DIR`.
 
 ## Step 1 — Prepare
 
 1. Read the plan. If `CHILD` is not `none`, use only the section of that child. Its
    acceptance criteria and its edge cases are the scope of this review.
-2. Check out the pull request branch and pull the latest commits. With `gh`:
-   `gh pr checkout <PR>`. With `glab`: `glab mr checkout <PR>`. Otherwise
-   `git switch <branch> && git pull --ff-only`.
+2. Run `git pull --ff-only` in `WORK_DIR`. If `WORK_DIR` is not set, find or add the
+   worktree of the pull request branch as "Worktree" in
+   `../sdlc-crew/references/forges/README.md` says. Do not use `gh pr checkout` or
+   `glab mr checkout`, because they switch the branch of the current checkout.
 3. If `ROUND` is more than 1, read `RUN_DIR/qa-round-<ROUND - 1>.md` and the fix
    report of the engineer.
 
 ## Step 2 — Review
 
-Invoke the `sdlc-review` skill with the arguments `<PR> --handoff`. Follow it to the
-end. It returns the handoff report with the security checklist already applied.
+Invoke the `sdlc-review` skill in `WORK_DIR` with the arguments `<PR> --handoff`.
+Follow it to the end. It returns the handoff report with the security checklist already applied.
 
 If the skill is not available, do the review yourself: read the full diff against
 `BASE_BRANCH`, run the test suite, run
@@ -134,3 +137,41 @@ If the "In scope" section has no findings, return `STATUS: CLEAN` with the file 
 Otherwise, return `STATUS: FIX` with the file path, the count of findings by
 priority, and this instruction to the engineer: "Fix all in-scope findings in this
 file."
+
+## Feedback mode
+
+The orchestrator sets `FEEDBACK` in `--feedback` mode. Do these steps in place of
+Steps 1 to 5.
+
+1. Run `git pull --ff-only` in `WORK_DIR`. Read the plan if `PLAN` is not `none`.
+2. Read every comment in `FEEDBACK`. Judge each one with the verdict table and the
+   rules of "Judge the existing pull request comments" in the `sdlc-review` skill.
+   Read the code at the commented `path:line` in `WORK_DIR` first. Judge by the code,
+   not by the author.
+3. For each VALID comment, write the required change in one sentence that an
+   engineer can apply with no other context.
+4. For each UNCLEAR comment, write one question for the author.
+5. Write `RUN_DIR/feedback/triage.md`:
+
+   ```markdown
+   # Review feedback
+
+   | # | Comment id | Author | Location | Verdict | Reason | Required change |
+   |---|---|---|---|---|---|---|
+   | 1 | <id> | @<login> | path:line | VALID | <one sentence> | <one sentence> |
+
+   ## Questions for authors
+
+   - <#>: <question>
+
+   ## For the person
+
+   <two or three sentences in plain language: what the reviewers asked for, and what
+   the crew will fix>
+   ```
+
+If one or more comments are VALID, return `STATUS: FIX` with the file path and the
+count of comments by verdict. Otherwise return `STATUS: CLEAN` with the file path.
+
+In a later QA round of feedback mode, do Steps 1 to 5 as usual, with the VALID rows
+of the triage file as the scope in place of the plan.

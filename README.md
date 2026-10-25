@@ -82,7 +82,7 @@ Architect ◄──► You         questions until nothing is unclear, then plan
    │  plan posted to the work item; a large change splits into child items
    ▼
 ┌─ for each work item, in dependency order ────────────────────────────────────
-Engineer                   branch, test first, smallest change, draft pull request
+Engineer                   worktree, test first, smallest change, draft pull request
    │
    ▼
 QA ◄──► Engineer           review against the plan and a security checklist,
@@ -125,6 +125,22 @@ Two more skills stand alone:
 The code host (`forge.kind`) is `github`, `gitlab`, `bitbucket`, or `none`. With
 `none`, the crew makes branches on your computer and opens no pull request. That is
 fine for a first project.
+
+The crew does each pull request in its own git worktree, a second working directory
+of the same repository. Your own checkout keeps its branch and its files. The
+worktrees go in `../<repo>-worktrees/` by default. Set `forge.worktree_dir` to
+change the place.
+
+## After a reviewer comments
+
+```text
+/sdlc-crew --feedback 42
+```
+
+The crew reads the open review comments of pull request 42. QA judges each comment
+against the code. You agree on which comments to fix. The engineer fixes them in the
+worktree and pushes. The crew replies to each comment, and resolves the threads that
+it fixed, after you agree.
 
 ## Tools and models
 

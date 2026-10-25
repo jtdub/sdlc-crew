@@ -42,6 +42,62 @@ To attach a screenshot, the comment body needs a URL. `gh` cannot upload an imag
 Use `project.screenshots: docs/screenshots` to commit the images on the branch and
 link them with a relative path, or describe the result in words.
 
+### Read comments
+
+Read the review threads that are not resolved. The GraphQL API is the only one that
+shows the resolved state:
+
+```bash
+gh api graphql --paginate -F owner='{owner}' -F name='{repo}' -F number=<PR> -f query='
+query($owner: String!, $name: String!, $number: Int!, $endCursor: String) {
+  repository(owner: $owner, name: $name) {
+    pullRequest(number: $number) {
+      reviewThreads(first: 100, after: $endCursor) {
+        pageInfo { hasNextPage endCursor }
+        nodes {
+          id isResolved isOutdated path line
+          comments(first: 50) { nodes { databaseId author { login } body createdAt } }
+        }
+      }
+    }
+  }
+}' --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved | not)'
+```
+
+Then read the review summaries and the general comments:
+
+```bash
+gh api "repos/{owner}/{repo}/pulls/<PR>/reviews" --paginate \
+  --jq '.[] | select(.body != "") | {id, user: .user.login, state, body}'
+gh api "repos/{owner}/{repo}/issues/<PR>/comments" --paginate \
+  --jq '.[] | {id, user: .user.login, body, created_at}'
+```
+
+### Reply comment
+
+For a review thread, use the thread `id` from Read comments:
+
+```bash
+gh api graphql -f id="<thread id>" -f body="$(cat "$RUN_DIR/<file>.md")" -f query='
+mutation($id: ID!, $body: String!) {
+  addPullRequestReviewThreadReply(input: {pullRequestReviewThreadId: $id, body: $body}) {
+    comment { url }
+  }
+}'
+```
+
+For a review summary or a general comment, do Comment PR. Start the body with a
+quote of the first line of the comment and the `@login` of its author.
+
+### Resolve thread
+
+```bash
+gh api graphql -f id="<thread id>" -f query='
+mutation($id: ID!) { resolveReviewThread(input: {threadId: $id}) { thread { isResolved } } }'
+```
+
+A review summary and a general comment have no resolved state. Reply only.
+
 ### Ready
 
 ```bash

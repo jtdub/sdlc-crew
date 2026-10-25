@@ -46,6 +46,39 @@ curl -s -u "$BITBUCKET_USER:$BITBUCKET_APP_PASSWORD" -X POST \
   --data "$(jq -n --rawfile c "$RUN_DIR/<file>.md" '{content: {raw: $c}}')"
 ```
 
+### Read comments
+
+Read every page. Follow the `next` URL until the response has none:
+
+```bash
+curl -s -u "$BITBUCKET_USER:$BITBUCKET_APP_PASSWORD" "$BASE/pullrequests/<id>/comments?pagelen=100" \
+  | jq '.values[] | select(.deleted | not)
+        | {id, parent: .parent.id, user: .user.display_name, body: .content.raw,
+           path: .inline.path, line: .inline.to, resolved: (.resolution != null)}'
+```
+
+A comment with no `parent` starts a thread. Group the replies under it. Keep the
+threads whose first comment is not resolved.
+
+### Reply comment
+
+```bash
+curl -s -u "$BITBUCKET_USER:$BITBUCKET_APP_PASSWORD" -X POST \
+  -H "Content-Type: application/json" "$BASE/pullrequests/<id>/comments" \
+  --data "$(jq -n --rawfile c "$RUN_DIR/<file>.md" --argjson p <comment id> '{content: {raw: $c}, parent: {id: $p}}')"
+```
+
+### Resolve thread
+
+Use the `id` of the first comment of the thread:
+
+```bash
+curl -s -u "$BITBUCKET_USER:$BITBUCKET_APP_PASSWORD" -X POST \
+  "$BASE/pullrequests/<id>/comments/<comment id>/resolve"
+```
+
+If the call fails, reply only, and tell the person that the thread stays open.
+
 ### Ready
 
 ```bash
