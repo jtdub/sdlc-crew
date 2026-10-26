@@ -65,6 +65,17 @@ Write all prose in ASD-STE100 Simplified Technical English.
 
 ## Step 3 — Test as a user
 
+Get axe-core, an open-source accessibility checker, for the check of each changed
+page:
+
+```bash
+AXE_VERSION=$(curl -sf https://registry.npmjs.org/axe-core/latest | jq -r '.version')
+curl -sfL --create-dirs "https://cdn.jsdelivr.net/npm/axe-core@$AXE_VERSION/axe.min.js" \
+  -o "$RUN_DIR/ux/axe.min.js"
+```
+
+If the download fails, record the output in the report, and do the other tests.
+
 Pick the first tool that is available:
 
 1. **A browser tool of the harness**, such as a Chrome or Playwright MCP server.
@@ -79,14 +90,15 @@ Pick the first tool that is available:
      -v "$RUN_DIR/ux:/work" -v "$RUN_DIR/screenshots:/work/screenshots" -w /work \
      -e APP_URL="<app_url with localhost replaced by host.docker.internal>" \
      -e APP_USER="$APP_USER" -e APP_PASSWORD="$APP_PASSWORD" \
+     -e AXE_SCRIPT=/work/axe.min.js \
      "mcr.microsoft.com/playwright/python:$VERSION-noble" \
      bash -c "pip install --quiet playwright==${VERSION#v} pytest && python -m pytest -q test_ux.py"
    ```
 
 3. **Playwright installed locally**, with `npx playwright` or `python -m playwright`.
-4. **None.** Record "No browser tool available" in the report. Test what you can
-   with `curl`: each page returns a success status and holds the expected text. Go
-   to Step 4.
+4. **None.** Record "No browser tool available" and "Accessibility check not run" in
+   the report. Test what you can with `curl`: each page returns a success status and
+   holds the expected text. Go to Step 4.
 
 For each journey in the UX test plan, the test:
 
@@ -97,6 +109,23 @@ For each journey in the UX test plan, the test:
 - Tests the edge cases that the plan marks "handle now": empty state, error state,
   and permissions.
 - Records browser console errors and server errors.
+- Checks accessibility on each changed page with axe-core, for the WCAG 2.1 levels A
+  and AA. In a Playwright script, open the browser context with `bypass_csp=True`, so
+  that the page can load the script. Then:
+
+  ```python
+  page.add_script_tag(path=os.environ["AXE_SCRIPT"])
+  result = page.evaluate(
+      "axe.run(document, {runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']})"
+  )
+  ```
+
+  With a browser tool, load the script and run the same `axe.run` call with the
+  script tool of the browser, if it has one. Save the violations to
+  `RUN_DIR/ux/a11y/<NN>-<short-name>.json`.
+- Does the main action of the journey one time with the keyboard only: `Tab` to move,
+  and `Enter` or `Space` to act. Asserts that the action completes, and that the
+  element with the focus is visible.
 - Saves full-page screenshots to `RUN_DIR/screenshots/<NN>-<short-name>.png`.
 
 Look at each screenshot with the image tool of the harness. Judge it as a user does:
@@ -107,7 +136,10 @@ width?
 ## Step 4 — Judge the result
 
 Write `RUN_DIR/ux-report.md` with one row for each journey: the journey, the result,
-and the screenshot names.
+the screenshot names, and the count of accessibility violations by impact. Add a
+section "Accessibility" with each violation: the rule ID, the impact, the page, the
+target element, and whether the diff changed that element. Read the changed
+templates, components, or pages to decide.
 
 A defect is one of these:
 
@@ -116,6 +148,16 @@ A defect is one of these:
 - A user cannot find the feature, or cannot understand a message or a label.
 - The layout hides information or blocks an action.
 - A form loses what the user typed after an error.
+- axe-core reports a violation with the impact `critical` or `serious` in a part of
+  the page that the diff adds or changes.
+- The main action of a journey cannot be done with the keyboard only, or the focus is
+  not visible.
+
+These are not defects. Record them in the "Accessibility" section only:
+
+- A violation with the impact `moderate` or `minor`.
+- A violation in a part of the page that the diff does not change. List it as an
+  existing issue.
 
 If there is a defect, return `STATUS: DEFECTS`. Give one line for each defect: the
 page URL, the step, what happened, what should happen, and the screenshot name.
@@ -138,7 +180,9 @@ Then update the pull request body with the Update PR operation of the forge file
    in one or two plain sentences.
 2. Add a `## Screenshots` section. Give each image one short sentence that states
    what it shows. Put the sentence before the image.
-3. Add a `## UX test result` section with the table from `RUN_DIR/ux-report.md`.
+3. Add a `## UX test result` section with the table from `RUN_DIR/ux-report.md`. Add
+   one line for accessibility: the count of violations in the changed parts of the
+   pages, and the count of existing issues.
 4. Keep the additions terse. Do not repeat content that the body already has.
 
 For `STATUS: NO_UI`, add only a `## UX test result` section with the reason.

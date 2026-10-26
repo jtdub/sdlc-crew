@@ -16,6 +16,9 @@ orchestrator reads `forge.kind` from `.sdlc-crew.yaml` and follows the matching 
 | Resolve thread | Mark one review thread as resolved. |
 | Ready | Mark the draft pull request ready for review. |
 | Assign | Make the account that runs the workflow an assignee. |
+| Checks | List the CI checks of the pull request. Give each check one result: `pass`, `fail`, `pending`, or `skip`. |
+| CI log | Read the log of one failed check. |
+| Rerun | Run the failed checks again. |
 
 Rules for every forge:
 

@@ -26,9 +26,9 @@ does not set. Each key has the default in the table.
 | `forge.branch_pattern` | `sdlc/{id}-{slug}` | `{id}` is the work item ID in lowercase. `{slug}` is the summary, lowercase, words joined with `-`, 40 characters or less. |
 | `forge.worktree_dir` | `../{repo}-worktrees` | The directory that holds the git worktree of each work unit. `{repo}` is the directory name of the repository. A relative path starts at the repository root. Keep it outside the repository, so the tests and the tools of the project do not scan it. |
 | `forge.assign_to_me` | `true` | Assign the pull request to the account that runs the workflow. |
-| `models.plan` | `inherit` | The model of the architect. |
-| `models.build` | `inherit` | The model of the engineer. |
-| `models.review` | `inherit` | The model of QA, UX, and `sdlc-review`. |
+| `models.plan` | `inherit` | The model of the architect. A model name, `inherit`, or `ask`. See `models.md`. |
+| `models.build` | `inherit` | The model of the engineer. A model name, `inherit`, or `ask`. |
+| `models.review` | `inherit` | The model of QA, UX, and `sdlc-review`. A model name, `inherit`, or `ask`. |
 | `project.run_command` | `""` | The command that starts the application for a local test. |
 | `project.test_command` | `""` | The command that runs the test suite. |
 | `project.app_url` | `""` | The URL of the local application after `run_command`. |
@@ -36,6 +36,7 @@ does not set. Each key has the default in the table.
 | `project.screenshots` | `pr-comment` | `pr-comment`, `docs/screenshots`, or `none`. Where the UX persona puts screenshots. |
 | `limits.max_pr_lines` | `500` | The maximum count of non-generated changed lines in one pull request. |
 | `limits.max_qa_rounds` | `3` | The maximum count of QA review and fix rounds for one pull request. |
+| `limits.max_ci_rounds` | `3` | The maximum count of CI check and fix rounds for one pull request before the crew asks the person. |
 
 ## Experience levels
 

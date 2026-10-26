@@ -13,7 +13,7 @@ there are no pull request comments to read.
 
 ## F1 — Prepare
 
-1. Do Step 0 items 1, 3, 4, 6, and 7 of the skill. Record `MODE: feedback` in
+1. Do Step 0 items 1, 3, 4, 6, 7, and 8 of the skill. Record `MODE: feedback` in
    `RUN_DIR/run.md`.
 2. Find the pull request:
    - A number or a URL: use it.

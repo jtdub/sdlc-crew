@@ -164,7 +164,7 @@ render_codex_agent() {
         plan|build|review) model=$(config_model "$role") ;;
         *) model="" ;;
     esac
-    if [ -n "$model" ] && [ "$model" != "inherit" ]; then
+    if [ -n "$model" ] && [ "$model" != "inherit" ] && [ "$model" != "ask" ]; then
         model_line="model = \"$model\""
     else
         model_line=""

@@ -68,8 +68,11 @@ them:
    `sdlc-setup` skill. Then read the file. Apply the defaults of `config-schema.md`
    for missing keys.
 2. Read `$ARGUMENTS`. Set `ID` or `DESCRIPTION`.
-3. Make the run directory. Use the scratchpad directory of the session if the
-   harness has one. Otherwise use `.sdlc-crew-run/` in the repository, which
+3. Find or make the run directory. It stays after the session ends, so that a later
+   session can continue the run. Use `~/.sdlc-crew/runs/<repo>/<ID>/`, where
+   `<repo>` is the directory name of the repository. With a `DESCRIPTION` and no ID,
+   use `~/.sdlc-crew/runs/<repo>/new-<YYYYMMDD-HHMM>/`. If the harness cannot write
+   to the home directory, use `.sdlc-crew-run/<ID>/` in the repository, which
    `.gitignore` must exclude; add the line if it is missing. Call the path
    `RUN_DIR`. Make the subdirectory `screenshots/`.
 4. Run these checks:
@@ -88,9 +91,13 @@ them:
 6. If a forge or tracker check fails, show the output in plain words. Offer
    `sdlc-setup` to change the config, or to continue with `forge.kind: none` and
    `tracker.kind: local` for this run.
-7. Pick the delegation mode with `delegation.md`. Write `RUN_DIR/run.md` with the
-   mode, the ID or description, the config values, the repository, the default
-   branch, and the account.
+7. For each role in `models` whose value is `ask`, ask the person which model the
+   role uses for this run, as "Ask at each run" in `models.md` says. Do not reuse the
+   answer of an earlier run.
+8. Pick the delegation mode with `delegation.md`. Write `RUN_DIR/run.md` with the
+   mode, the line `ID: <ID>` or the description, the config values, the models of
+   item 7, the repository, the default branch, and the account. When the architect
+   creates the item from a description, add the line `ID: <ID>`.
 
 Tell the person in two or three sentences what happens next: the architect asks
 questions, then writes a plan, and nothing changes in the code before they approve
@@ -101,6 +108,30 @@ the plan.
 If `ID` is set, do the Set status operation with `tracker.statuses.in_progress`. If
 the status is already that, continue. If the operation fails, show the output, and
 ask whether to skip the status change. Do not stop the workflow.
+
+### Step 0.2 — Continue a saved run
+
+If `RUN_DIR/plan.md` does not exist, go to Step 1. A run that started from a
+description is in the directory whose `run.md` holds the line `ID: <ID>`.
+
+1. Read `RUN_DIR/plan.md`, and `RUN_DIR/units.md` if it exists.
+2. Tell the person the problem, the acceptance criteria, and one line for each unit:
+   the ID, the branch, the pull request URL, and the state of the pull request.
+3. Ask: "A saved plan for <ID> exists. Continue from the saved plan, or plan
+   again?" Offer "Continue from the saved plan (Recommended)" and "Plan again".
+4. For "Plan again", move the files of `RUN_DIR` to
+   `RUN_DIR/archive-<YYYYMMDD-HHMM>/`. Do not delete them. Go to Step 1.
+5. For "Continue from the saved plan", do not start the architect for a plan. Go to
+   the work unit loop with the units of `units.md`:
+   - Skip a unit whose pull request is ready.
+   - For a unit with a draft pull request, start at Step 3. Start a new engineer,
+     and give it `WORK_DIR` and the path of `UNIT_DIR/engineer-report.md`. Use the
+     `WORK_DIR` of the unit if `git worktree list` shows it. Otherwise add the
+     worktree again, as `forges/README.md` says.
+   - Start a unit that has no pull request at Step 2.
+   - If `RUN_DIR/children.json` exists, do not create the child items again.
+
+Tell the person where the run continues.
 
 ## Step 1 — Architect: requirements and plan
 
@@ -217,7 +248,8 @@ see that repository can see the branch. Continue?" Wait.
 Start the `sdlc-engineer` persona with `models.build`.
 
 The engineer returns `STATUS: DRAFT_PR` with the pull request number and URL, the
-base branch, `WORK_DIR`, the `STACK` result, `DIFF_LINES`, the test command, and the test result.
+base branch, `WORK_DIR`, the `STACK` result, `DIFF_LINES`, the test command, the test
+result, and the path of its evidence report, `UNIT_DIR/engineer-report.md`.
 It can also return `STATUS: QUESTIONS` or `STATUS: BLOCKED`.
 
 Record the branch, `WORK_DIR`, and the pull request URL in `RUN_DIR/units.md`.
@@ -267,11 +299,42 @@ If `DEFECTS`:
    UX to test again. Ask again if UX finds more defects.
 4. If the person stops, skip Step 5 for this unit.
 
+### Step 4.1 — CI checks
+
+The pull request must not become ready while a CI check fails. Do this step after
+the last commit of the unit. With `forge.kind: none`, skip it, and record "CI: no
+forge" in `UNIT_DIR/workflow-notes.md`.
+
+For `CI_ROUND` from 1 to `limits.max_ci_rounds`:
+
+1. Wait for the checks with the Checks operation of the forge file. Checks can take
+   more time than one command call permits. If the harness can run a command in the
+   background and tell you when it ends, run the wait that way. Otherwise do the
+   Checks operation every 60 seconds, for 30 minutes at most. A check that is still
+   `pending` after 30 minutes is a `fail` with the reason "timeout".
+2. If the forge reports no checks, record "CI: no checks". End the loop.
+3. If each check is `pass` or `skip`, record "CI: pass, round <CI_ROUND>". End the
+   loop.
+4. If a check is `fail`, tell the person the round number and the names of the
+   failed checks, in plain words. Resume the engineer with this instruction: "Fix the
+   failed checks." Give the name and the link of each failed check.
+5. The engineer returns `STATUS: FIXED`, or `STATUS: BLOCKED` when the change does not
+   cause the failure, for example a failure of the CI service, or a test that also
+   fails on the base branch.
+
+If the engineer returns `STATUS: BLOCKED`, or the last round ends with a failed check,
+show the failed checks and the reason. Ask: "The checks of <UNIT_ID> fail. Leave the
+pull request in draft and stop, mark it ready anyway, or run the failed checks
+again?" For "run again", do the Rerun operation, and start this step again at round
+1. For "leave it in draft", skip Step 5 for this unit. Record the choice in
+`UNIT_DIR/workflow-notes.md`.
+
 ## Step 5 — Finish the pull request and hand it to a human
 
 1. Read the pull request body with the Update PR operation.
 2. Add a section `## Workflow notes` at the end. It holds:
    - The count of QA rounds, and the count of fixed findings.
+   - The CI result, and the count of CI rounds.
    - The contents of `UNIT_DIR/workflow-notes.md`, if the file exists.
    - For a stacked pull request: "Base: <BASE_BRANCH>. Merge <base URL> first."
    - The out-of-scope QA findings, one line each, or "None".
@@ -296,7 +359,7 @@ With `forge.kind: none`, skip 1 to 4. Tell the person the branch name, the
    full file.
 4. Do the Comment operation with the retrospective on the parent item only.
 5. Report to the person: the pull request URL, its state, the item status, the QA
-   round count, the UX status, the `WORK_DIR` path, and each item that the workflow
+   round count, the UX status, the CI result, the `WORK_DIR` path, and each item that the workflow
    did not complete. If the plan split the item, give one row for each child and the
    merge order.
 6. Tell the person that the worktree stays, so `/sdlc-crew --feedback <PR>` can use
@@ -309,14 +372,6 @@ With `forge.kind: none`, skip 1 to 4. Tell the person the branch name, the
 
 If the architect cannot resume, start a new architect with the same files, and tell
 it to write the retrospective only.
-
-## Continue a run
-
-If the person runs `/sdlc-crew <ID>` and `RUN_DIR/units.md` exists for that ID,
-read it and continue from the first unit that has no ready pull request. Use the
-`WORK_DIR` of the unit if it is in the file and `git worktree list` shows it.
-Otherwise add the worktree again, as `forges/README.md` says. Tell the person where
-the run continues.
 
 ## Common mistakes
 
@@ -333,6 +388,11 @@ the run continues.
 - Do not paraphrase the answers of the person. Quote them.
 - Do not run more than `limits.max_qa_rounds` QA rounds for one unit.
 - Do not send out-of-scope QA findings to the engineer.
+- Do not mark the pull request ready while a CI check fails, unless the person
+  selects "mark it ready anyway".
+- Do not run more than `limits.max_ci_rounds` CI rounds before you ask the person.
+- Do not reuse the model answer of an earlier run for a role whose value is `ask`.
+- Do not delete a saved run. Move it to an archive directory.
 - Do not mark the pull request ready if the person selected "leave it in draft".
 - Do not set the item to `in_review` while the pull request is a draft.
 - Do not stash, reset, or discard the changes of the person.
