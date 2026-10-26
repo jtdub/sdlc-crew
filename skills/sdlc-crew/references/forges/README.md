@@ -54,6 +54,24 @@ git worktree add -b "$BRANCH" "$WORK_DIR" "origin/$BASE_BRANCH"
 If the repository has no `origin` remote, use `"$BASE_BRANCH"` as the start point in
 place of `"origin/$BASE_BRANCH"`.
 
+A new worktree does not have the local files that git ignores, for example `.env`.
+The app and the tests can need them. After each `git worktree add`, copy each path of
+`project.local_files` from `REPO_DIR`, but only if git ignores it, so that the copy
+cannot be committed:
+
+```bash
+for f in <each path of project.local_files>; do
+  if [ -f "$REPO_DIR/$f" ] && git -C "$REPO_DIR" check-ignore -q "$f"; then
+    mkdir -p "$(dirname "$WORK_DIR/$f")"
+    cp "$REPO_DIR/$f" "$WORK_DIR/$f"
+  fi
+done
+```
+
+If a path exists but git does not ignore it, do not copy it. Tell the person that the
+file is not in `.gitignore`, and that a file with secrets must be. Do not show the
+contents of a copied file.
+
 To find the worktree of a branch that exists, read `git worktree list --porcelain`.
 Git checks out a branch in one worktree only. If the branch already has a worktree,
 use it. If the branch has none, add one without `-b`:

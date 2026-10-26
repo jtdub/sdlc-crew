@@ -106,6 +106,11 @@ For each journey in the UX test plan, the test:
 - Opens the page from the place where a user starts, for example the navigation
   menu. Does not go direct to the URL unless a user does that.
 - Does the steps, and asserts the expected result.
+- Submits each changed form one time with a value that the form rejects. Asserts that
+  the page shows an error message, and that the other fields keep what the user
+  typed.
+- Opens each changed page one time at a width of 375 pixels and a height of 812
+  pixels, the size of a phone screen, and saves a screenshot.
 - Tests the edge cases that the plan marks "handle now": empty state, error state,
   and permissions.
 - Records browser console errors and server errors.
