@@ -105,7 +105,7 @@ echo "== project install"
 PROJECT="$TMP/project"
 mkdir -p "$PROJECT"
 git -C "$PROJECT" init -q
-printf 'models:\n  plan: strong-model\n  build: inherit\n  review: strong-model\n' > "$PROJECT/.sdlc-crew.yaml"
+printf 'models:\n  plan: strong-model\n  build: inherit\n  review: ask\n' > "$PROJECT/.sdlc-crew.yaml"
 (cd "$PROJECT" && "$REPO_DIR/install.sh" --project --harness claude-code --harness codex --harness gemini --harness copilot)
 for s in "${SKILLS[@]}"; do
     expect_link "$PROJECT/.claude/skills/$s" "$REPO_DIR/skills/$s"
@@ -120,6 +120,9 @@ done
 grep -q '^model = "strong-model"' "$PROJECT/.codex/agents/sdlc-architect.toml" || fail "the plan model from .sdlc-crew.yaml is not in the architect agent"
 if grep -q '^model = ' "$PROJECT/.codex/agents/sdlc-engineer.toml"; then
     fail "the engineer agent has a model line although build is inherit"
+fi
+if grep -q '^model = ' "$PROJECT/.codex/agents/sdlc-qa.toml"; then
+    fail "the QA agent has a model line although review is ask"
 fi
 (cd "$PROJECT" && "$REPO_DIR/uninstall.sh" --project)
 for p in "${PERSONAS[@]}"; do

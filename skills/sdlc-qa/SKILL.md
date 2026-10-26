@@ -45,7 +45,10 @@ Write all prose in ASD-STE100 Simplified Technical English. Write each finding w
    worktree of the pull request branch as "Worktree" in
    `../sdlc-crew/references/forges/README.md` says. Do not use `gh pr checkout` or
    `glab mr checkout`, because they switch the branch of the current checkout.
-3. If `ROUND` is more than 1, read `RUN_DIR/qa-round-<ROUND - 1>.md` and the fix
+3. Read the evidence report of the engineer, `RUN_DIR/engineer-report.md`. If it
+   does not exist, skip the evidence report rows of Step 3, and record the fact under
+   "Gaps".
+4. If `ROUND` is more than 1, read `RUN_DIR/qa-round-<ROUND - 1>.md` and the fix
    report of the engineer.
 
 ## Step 2 — Review
@@ -70,6 +73,9 @@ Compare the diff with the plan. Add a finding for each of these conditions:
 | The diff does not use the mechanism, the file, or the symbol that a reuse survey row names | MUST FIX |
 | The diff adds a pattern that no reuse survey row names | MUST FIX, marked `SURVEY GAP` |
 | The diff adds a secret, or a file that must be in `.gitignore` | MUST FIX |
+| The diff uses a framework or library symbol that has no `CONTRACTS VERIFIED` row in the evidence report | MUST FIX |
+| A `CONTRACTS VERIFIED` row that you spot-check does not match the code at its citation | MUST FIX |
+| The diff renames a symbol or changes a signature, and the evidence report has no `CALLERS UPDATED` row for it | MUST FIX |
 | A "New project" item of the plan is missing | SHOULD FIX |
 | An infrastructure rule of the plan is not met | See `../sdlc-review/references/infrastructure.md` |
 | The diff changes code that the plan does not name, and the change is not necessary | SHOULD FIX |
@@ -83,6 +89,28 @@ If `ROUND` is more than 1, check each earlier finding. If a finding is not fixed
 the engineer did not report it as "not applied", add it again. If the engineer
 reported it as "not applied", judge the reason against the code. If the reason is
 valid, drop the finding. If it is not valid, add it again with your evidence.
+
+Spot-check two `CONTRACTS VERIFIED` rows. Read the code at the citation, and make sure
+that it does what the row states.
+
+### Step 3.1 — Verify each acceptance criterion
+
+For each acceptance criterion of the plan, or of the child:
+
+1. Find the code and the tests that implement it.
+2. Give it one result, with evidence:
+   - `PASS` — a test proves it, and the test passes. The evidence is the test name
+     and the test output.
+   - `FAIL` — a test for it fails, or the code does not do what it states.
+   - `UNVERIFIED` — you cannot prove it either way. State what you could not check,
+     and the test that would close the gap.
+3. Read each test that you give as evidence. A test that passes but asserts nothing
+   useful does not prove the criterion. Its criterion is `UNVERIFIED`.
+
+Run the full test suite in `WORK_DIR`. Report the real counts and the name of each
+failure. Do not report a pass that you did not see.
+
+Each `FAIL` or `UNVERIFIED` criterion is a MUST FIX finding.
 
 ## Step 4 — Decide the scope
 
@@ -114,6 +142,12 @@ Write `RUN_DIR/qa-round-<ROUND>.md`:
 
 <the suggested fixes for the in-scope findings>
 
+## Acceptance criteria
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| AC-1 | PASS | `tests/test_recipes.py::test_empty_list_shows_message`, 1 passed |
+
 ## Out of scope
 
 - `path:line` — <one sentence>
@@ -128,8 +162,8 @@ Write `RUN_DIR/qa-round-<ROUND>.md`:
 
 ## For the person
 
-<two or three sentences in plain language: what QA checked, what it found, and what
-happens next>
+<two or three sentences in plain language: what QA checked, how many acceptance
+criteria a test proves, what it found, and what happens next>
 ```
 
 If the "In scope" section has no findings, return `STATUS: CLEAN` with the file path.

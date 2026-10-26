@@ -158,9 +158,30 @@ Add the changelog entry that the plan names:
     procedure of the forge file, if it has one. Record `STACK: linked`,
     `STACK: not available`, or `STACK: none`.
 
+Write the evidence report to `RUN_DIR/engineer-report.md`. QA reads it.
+
 Return `STATUS: DRAFT_PR` with the pull request number and URL (or the branch name),
-the base branch, `WORK_DIR`, the `STACK` result, `DIFF_LINES`, the test command, and the test
-result.
+the base branch, `WORK_DIR`, the `STACK` result, `DIFF_LINES`, the test command, the
+test result, and the path of the evidence report.
+
+### Evidence report
+
+The report shows what you read and ran, so that QA can check it. Write these
+sections:
+
+- `CONTRACTS VERIFIED` — one row for each symbol of a framework or a library that the
+  change uses: a base class, a function, a component, or a configuration key. Give
+  the symbol, the `file:line` of its implementation in the installed version, and one
+  behavior that you confirmed there: what it returns, what it raises, or what it
+  changes. A line that only exports the symbol is not its implementation. Read the
+  body of the definition.
+- `CALLERS UPDATED` — one row for each existing symbol that you renamed or whose
+  signature you changed. Give the search command, each hit, and what you did with it.
+  Include the tests. Write `NONE` if you changed no existing symbol.
+- `VERIFIED AND ASSUMED` — what you confirmed from the code, and what you did not
+  confirm.
+- `TEST RESULTS` — the command and its real output: the counts and the name of each
+  failure. Do not report a pass that you did not see.
 
 ## Step 6 — Fix findings
 
@@ -176,9 +197,35 @@ VALID.
 4. If a fix breaks a test, or if it goes against the plan, do not apply it. Report it
    as "not applied" with the evidence: a `path:line` or the test output.
 5. Run the full test suite.
-6. Commit with the message `<ID>: Address QA round <N> findings`,
+6. Update `RUN_DIR/engineer-report.md` for each new symbol, each changed caller, and
+   the new test results.
+7. Commit with the message `<ID>: Address QA round <N> findings`,
    `<ID>: Address UX findings`, or `<ID>: Address review feedback`.
-7. Push the commits, unless `forge.kind` is `none`.
+8. Push the commits, unless `forge.kind` is `none`.
 
 Return `STATUS: FIXED` with one line for each finding: the number, "fixed" or "not
 applied", and the commit or the reason.
+
+## Step 7 — Fix the failed CI checks
+
+The orchestrator sends you the name and the link of each failed check.
+
+1. Read the log of each failed check with the CI log operation of the forge file.
+   Run `git pull --ff-only` in `WORK_DIR` first.
+2. Find the cause. Find the command of the check in the CI configuration of the
+   repository, for example `.github/workflows/`, `.gitlab-ci.yml`, or
+   `bitbucket-pipelines.yml`. Run the same command in `WORK_DIR` to reproduce the
+   failure.
+3. If the change does not cause the failure, do not change the code. Examples: a
+   failure of the CI service, a network timeout, or a test that also fails on
+   `BASE_BRANCH`. Return `STATUS: BLOCKED` with the check name, the log lines that
+   show the cause, and the evidence.
+4. Fix the cause. For a defect in behavior, write a failing test first. Do not
+   disable a check, skip a test, or add a directive that silences a linter to make a
+   check pass, unless the rule is wrong for that line. Give the reason in the report.
+5. Run the command again. Make sure that it passes. Update
+   `RUN_DIR/engineer-report.md`.
+6. Commit with the message `<ID>: Fix CI <check name>`, and push.
+
+Return `STATUS: FIXED` with one line for each failed check: the name, the cause, and
+the commit.

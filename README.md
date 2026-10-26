@@ -88,8 +88,11 @@ Engineer                   worktree, test first, smallest change, draft pull req
 QA ◄──► Engineer           review against the plan and a security checklist,
    │                       fix all in-scope findings, up to 3 rounds
    ▼
-UX                         uses the app as a user, screenshots in the pull request
-   │
+UX                         uses the app as a user, checks accessibility,
+   │                       screenshots in the pull request
+   ▼
+CI ◄──► Engineer           waits for the checks of the code host, fixes failures,
+   │                       up to 3 rounds
    ▼
 Pull request ready for you ──► work item set to In Review
 └──────────────────────────────────────────────────────────────────────────────
@@ -101,9 +104,9 @@ Retrospective posted to the work item, with one lesson for you
 | Persona | Skill | What it does |
 |---|---|---|
 | Software architect | `sdlc-architect` | Checks that the request is complete. Asks why. Finds code that already exists. Offers options with cost and value. Writes the plan. |
-| Software engineer | `sdlc-engineer` | Writes a test, then the smallest code that passes it. Adds the project basics that are missing. Opens a draft pull request. Fixes findings. |
-| Quality assurance | `sdlc-qa` | Reviews the change against the plan and a security checklist. Sends only in-scope findings to the engineer. |
-| User experience | `sdlc-ux` | Starts the app and uses the change as a person does. Takes screenshots. Writes what changes for the user. |
+| Software engineer | `sdlc-engineer` | Writes a test, then the smallest code that passes it. Adds the project basics that are missing. Opens a draft pull request with an evidence report of what it read and ran. Fixes findings and failed CI checks. |
+| Quality assurance | `sdlc-qa` | Reviews the change against the plan and a security checklist. Gives each acceptance criterion a result: pass, fail, or unverified. Spot-checks the evidence report. Sends only in-scope findings to the engineer. |
+| User experience | `sdlc-ux` | Starts the app and uses the change as a person does. Checks accessibility and the keyboard. Takes screenshots. Writes what changes for the user. |
 
 Two more skills stand alone:
 
@@ -156,7 +159,13 @@ Models are set per role in `.sdlc-crew.yaml`: `plan` for the architect, `build` 
 the engineer, `review` for QA and UX. The default, `inherit`, uses the model of your
 session, so the crew works with any provider your tool supports, including
 OpenRouter and self-hosted models. The setup helps you choose a stronger model for
-`plan` and `review` when your tool has one.
+`plan` and `review` when your tool has one. Set a role to `ask` when the rules of a
+customer or a project limit which model can read the code. The crew then asks at the
+start of each run.
+
+The files of each run go in `~/.sdlc-crew/runs/<repo>/<ID>/`. They stay after the
+session ends. Run `/sdlc-crew <ID>` again to continue from the saved plan, or to
+plan again.
 
 ## Rules the crew keeps for you
 

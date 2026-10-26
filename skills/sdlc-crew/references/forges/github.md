@@ -110,6 +110,39 @@ gh pr ready <PR>
 gh pr edit <PR> --add-assignee @me
 ```
 
+### Checks
+
+Wait for the checks, then read them:
+
+```bash
+gh pr checks <PR> --watch --interval 60
+gh pr checks <PR> --json name,bucket,link,workflow
+```
+
+The `bucket` gives the result: `pass` is `pass`, `skipping` is `skip`, `pending` is
+`pending`, and `fail` or `cancel` is `fail`. If the output says that no checks are
+reported, the pull request has no checks.
+
+### CI log
+
+For a GitHub Actions check, the `link` holds `/actions/runs/<run id>/`. Read the log of
+the failed jobs:
+
+```bash
+gh run view <run id> --log-failed
+```
+
+For a check of another service, the log is at the `link`. If you cannot read it,
+give the link to the person.
+
+### Rerun
+
+```bash
+gh run rerun <run id> --failed
+```
+
+A check of another service runs again from its own page. Give the link to the person.
+
 ### Stacked pull requests
 
 If a work unit depends on another unit in the same repository, its branch starts

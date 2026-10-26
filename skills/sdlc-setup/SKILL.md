@@ -93,9 +93,11 @@ whose answer is certain from Step 1, and say what you assumed.
 
 7. **[Models]** Read `../sdlc-crew/references/models.md`. Ask: "Which model should
    each role use?" Options: "The model of this session for every role
-   (Recommended)", "Let me choose per role". For the second option, ask for `plan`,
-   `build`, and `review` with the model names that the harness accepts, and the
-   guidance of `models.md`.
+   (Recommended)", "Let me choose per role", "Ask me at the start of each run — for
+   work where the rules of a customer or a project limit which model can read the
+   code". For the second option, ask for `plan`, `build`, and `review` with the model
+   names that the harness accepts, `ask`, and the guidance of `models.md`. For the
+   third option, set all three roles to `ask`.
 
 ### Section `project`
 

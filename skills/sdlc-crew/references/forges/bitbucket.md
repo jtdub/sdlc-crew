@@ -93,3 +93,35 @@ field.
 
 Bitbucket pull requests have an author and reviewers, not an assignee. Do nothing.
 Do not add a reviewer.
+
+### Checks
+
+```bash
+curl -s -u "$BITBUCKET_USER:$BITBUCKET_APP_PASSWORD" "$BASE/pullrequests/<id>/statuses?pagelen=100" \
+  | jq '.values[] | {key, name, state, url}'
+```
+
+Each status is one check. `SUCCESSFUL` is `pass`. `FAILED` and `STOPPED` are `fail`.
+`INPROGRESS` is `pending`. If `values` is empty, the pull request has no checks.
+
+### CI log
+
+For Bitbucket Pipelines, find the pipeline of the branch, its failed step, and the
+log of that step. Each UUID has braces. Write them as `%7B` and `%7D` in a URL.
+
+```bash
+curl -s -u "$BITBUCKET_USER:$BITBUCKET_APP_PASSWORD" "$BASE/pipelines/?sort=-created_on&pagelen=20" \
+  | jq '.values[] | select(.target.ref_name == "<branch>") | {uuid, result: .state.result.name}'
+curl -s -u "$BITBUCKET_USER:$BITBUCKET_APP_PASSWORD" "$BASE/pipelines/<pipeline uuid>/steps/" \
+  | jq '.values[] | {uuid, name, result: .state.result.name}'
+curl -sL -u "$BITBUCKET_USER:$BITBUCKET_APP_PASSWORD" "$BASE/pipelines/<pipeline uuid>/steps/<step uuid>/log" \
+  | tail -n 200
+```
+
+For a check of another service, the log is at the `url` of the status. If you cannot
+read it, give the link to the person.
+
+### Rerun
+
+The API has no call that runs only the failed steps. Give the person the `url` of
+each failed check, and ask them to run it again from that page.

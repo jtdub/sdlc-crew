@@ -77,6 +77,33 @@ glab mr update <MR> --ready
 glab mr update <MR> --assignee +@me
 ```
 
+### Checks
+
+Read the latest pipeline of the merge request, then its jobs:
+
+```bash
+glab api "projects/:fullpath/merge_requests/<MR>/pipelines" --jq '.[0] | {id, status, web_url}'
+glab api --paginate "projects/:fullpath/pipelines/<pipeline id>/jobs" \
+  --jq '.[] | {id, name, status, allow_failure, web_url}'
+```
+
+Each job is one check. `success` is `pass`. `skipped` and `manual` are `skip`. `failed`
+with `allow_failure: true` is `skip`. Other `failed` jobs and `canceled` jobs are
+`fail`. Every other status is `pending`. If the first command returns nothing, the
+merge request has no checks.
+
+### CI log
+
+```bash
+glab api "projects/:fullpath/jobs/<job id>/trace" | tail -n 200
+```
+
+### Rerun
+
+```bash
+glab api -X POST "projects/:fullpath/jobs/<job id>/retry"
+```
+
 ### Dependent merge requests
 
 If a work unit depends on another unit in the same repository, its branch starts

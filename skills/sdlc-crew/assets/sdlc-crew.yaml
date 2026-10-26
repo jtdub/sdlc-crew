@@ -42,7 +42,8 @@ forge:
   assign_to_me: true
 
 # Which model each role uses. The value is a model name that your harness accepts,
-# or "inherit" for the model of the current session.
+# "inherit" for the model of the current session, or "ask" to choose at the start
+# of each run, for work where data rules limit which model can read the code.
 #   plan   - the architect
 #   build  - the engineer
 #   review - QA, UX, and the sdlc-review skill
@@ -63,3 +64,4 @@ project:
 limits:
   max_pr_lines: 500
   max_qa_rounds: 3
+  max_ci_rounds: 3
