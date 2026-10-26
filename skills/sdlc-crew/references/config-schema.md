@@ -34,6 +34,7 @@ does not set. Each key has the default in the table.
 | `project.app_url` | `""` | The URL of the local application after `run_command`. |
 | `project.changelog` | `none` | `none`, `keep-a-changelog`, or `towncrier`. |
 | `project.screenshots` | `pr-comment` | `pr-comment`, `docs/screenshots`, or `none`. Where the UX persona puts screenshots. |
+| `project.local_files` | `[".env"]` | The local files that git ignores and that the app or the tests need, for example `.env` or `config/local.yaml`. The crew copies each one into a new worktree. It does not copy a file that git does not ignore. |
 | `limits.max_pr_lines` | `500` | The maximum count of non-generated changed lines in one pull request. |
 | `limits.max_qa_rounds` | `3` | The maximum count of QA review and fix rounds for one pull request. |
 

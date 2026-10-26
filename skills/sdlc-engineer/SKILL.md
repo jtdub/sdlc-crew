@@ -94,9 +94,9 @@ or less. Fill `forge.branch_pattern`. Create the branch in a new worktree as
 If `BASE_BRANCH` is the branch of another child, this branch stacks on that branch.
 The worktree of the other child stays as it is.
 
-If the project needs setup in a new checkout, for example a dependency install or a
-copy of a local `.env` file, do it in `WORK_DIR`. Copy a local `.env` file only from
-`REPO_DIR`, and never commit it.
+The forge README copies the local files of `project.local_files` into the new
+worktree. Never commit them. If the project needs other setup in a new checkout, for
+example a dependency install, do it in `WORK_DIR`.
 
 ## Step 3 — Build with TDD
 

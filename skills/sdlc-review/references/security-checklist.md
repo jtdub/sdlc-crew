@@ -12,9 +12,21 @@ that matter most for a small project. Each item gives a priority for the finding
 | The diff adds a `.env` file, a credentials file, or a key file that `.gitignore` does not exclude | MUST FIX |
 | A secret is read from a config file in the repository instead of an environment variable | SHOULD FIX |
 
-Run a secret scan when a tool is installed: `gitleaks detect --no-git -s .` or
-`trufflehog filesystem .`. Otherwise grep the diff for `password`, `secret`, `token`,
-`api_key`, `BEGIN PRIVATE KEY`, and long random strings.
+Scan the commits of the branch for secrets when a tool is installed. Run the command
+in `WORK_DIR`:
+
+```bash
+gitleaks git --no-banner --log-opts="origin/$BASE_BRANCH..HEAD" .
+trufflehog git file://. --since-commit "origin/$BASE_BRANCH" --branch HEAD --no-update
+```
+
+Use one of the two. Before `gitleaks` 8.19, the first command is
+`gitleaks detect --log-opts="origin/$BASE_BRANCH..HEAD"`. Do not scan the files of the
+worktree, for example with `gitleaks detect --no-git` or `trufflehog filesystem`. The
+worktree holds the local files that git ignores, such as `.env`, and a scan of them
+reports a secret that the change does not commit. If no tool is installed, search
+the added lines of `git diff "origin/$BASE_BRANCH...HEAD"` for `password`, `secret`,
+`token`, `api_key`, `BEGIN PRIVATE KEY`, and long random strings.
 
 ## Input and output
 
@@ -46,6 +58,11 @@ Run a secret scan when a tool is installed: `gitleaks detect --no-git -s .` or
 
 Run the ecosystem audit when the tool is available: `npm audit`, `pip-audit`,
 `uv pip audit`, `bundle audit`, `cargo audit`, `govulncheck ./...`, `composer audit`.
+
+Report a vulnerability as a finding only for a package that the diff adds, or whose
+version the diff changes. List each other vulnerability under "Gaps" as an existing
+issue. A vulnerability in a package that only the development or test setup uses is
+SHOULD FIX at most, because it does not reach the users of the app.
 
 ## Transport and configuration
 

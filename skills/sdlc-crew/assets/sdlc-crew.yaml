@@ -58,6 +58,9 @@ project:
   app_url: ""
   changelog: none
   screenshots: pr-comment
+  # Local files that git ignores and that the app or the tests need, such as .env.
+  # The crew copies them into each new worktree. It never commits them.
+  local_files: [".env"]
 
 # Limits that keep a change reviewable.
 limits:
