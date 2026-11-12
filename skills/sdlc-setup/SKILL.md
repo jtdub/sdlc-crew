@@ -144,5 +144,14 @@ block, with one sentence for each. Do not install a tool. Do not run a login.
 | `acli` | see https://developer.atlassian.com/cloud/acli/ | `acli jira auth login` |
 | `docker` | see https://docs.docker.com/get-docker/ | none |
 
+Then check the two optional skills. The crew works without them. Find out whether
+the harness lists each one. If one is missing, tell the person what it adds in one
+sentence, and give the install command for their harness from its README.
+
+| Skill | What it adds | Install |
+|---|---|---|
+| The `egm` plugin (Elephant-Goldfish Model) | Reviewers that did not see the conversation check the plan before you approve it. Without it, the crew uses its built-in reviewer. | https://github.com/google/elephant-goldfish-model#install |
+| `humanizer` | Removes the patterns of AI writing from the pull request body and the comments. Without it, the crew uses a short built-in list. | https://github.com/blader/humanizer#installation |
+
 End with: "Setup is complete. Start a change with `/sdlc-crew "<what you want>"`."
 Give one example that fits the project.

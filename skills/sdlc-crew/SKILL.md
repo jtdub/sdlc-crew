@@ -1,6 +1,6 @@
 ---
 name: sdlc-crew
-description: Run a work item through the full software development life cycle with four personas (architect, engineer, QA, UX), from a plain-language request or an issue to a pull request that is ready for a human to review. Use only when the person runs /sdlc-crew, or asks by name for the crew or the sdlc-crew workflow to build a feature, fix a bug, or set up infrastructure. Takes an issue ID or a quoted description as the argument. Works with a local backlog file, GitHub Issues, GitLab Issues, Jira, or Bitbucket. With --feedback and a pull request, reads the review comments, fixes the problems that they raise, and replies to each comment.
+description: Run a work item through the full software development life cycle with four personas (architect, engineer, QA, UX), from a plain-language request or an issue to a pull request that is ready for a human to review. Use only when the person runs /sdlc-crew, or asks by name for the crew or the sdlc-crew workflow to build a feature, fix a bug, or set up infrastructure. Takes an issue ID or a quoted description as the argument. Works with a local backlog file, GitHub Issues, GitLab Issues, Jira, or Bitbucket. With --feedback and a pull request, fixes the valid review comments, the failed CI checks, and a merge conflict, and replies to each comment.
 license: Apache-2.0
 compatibility: Needs git. Needs the tracker and forge tools that .sdlc-crew.yaml names. Works in Claude Code, Codex CLI, Gemini CLI, GitHub Copilot CLI, and any harness that loads Agent Skills.
 metadata:
@@ -24,7 +24,8 @@ state, and moves the work between four personas:
 description. With no argument, ask the person what they want to build, in one
 question.
 
-`--feedback [TARGET]`: act on the review comments of an open pull request. `TARGET`
+`--feedback [TARGET]`: act on the review comments, the failed CI checks, and a merge
+conflict of an open pull request. `TARGET`
 is a pull request number, a pull request URL, or a work item ID. Follow
 `references/feedback.md` in place of Steps 1 to 6.
 
@@ -47,6 +48,9 @@ them:
 - `forges/<kind>.md` and `forges/README.md` — the forge operations, the branch name,
   the worktree, the template search, and the diff measurement.
 - `feedback.md` — the steps of `--feedback`.
+- `plan-review.md` — the fresh review of the plan before the person approves it.
+- `../sdlc-review/references/prose-pass.md` — the pass that removes AI writing
+  patterns from text that a person reads.
 
 ## Rules for the orchestrator
 
@@ -142,7 +146,7 @@ The architect returns one of these status lines:
 
 - `STATUS: QUESTIONS` — a list of questions for the person.
 - `STATUS: PLAN` — a complete plan in `RUN_DIR/plan.md`.
-- `STATUS: CHILDREN` — the child items exist. Only in Step 1.4.
+- `STATUS: CHILDREN` — the child items exist. Only in Step 1.5.
 - `STATUS: BLOCKED` — a reason.
 
 ### Step 1.1 — Ask the questions
@@ -150,7 +154,14 @@ The architect returns one of these status lines:
 Ask as `delegation.md` says under "Questions to the person". Send all answers to the
 architect. Repeat until the architect returns `STATUS: PLAN`.
 
-### Step 1.2 — Agree on the plan
+### Step 1.2 — Fresh review of the plan
+
+Follow `references/plan-review.md`. Reviewers that did not see the conversation read
+the plan and the code that it cites. The architect then resolves their findings.
+Tell the person in one sentence that a fresh review of the plan runs now, and why.
+If `RUN_DIR/plan-review.md` exists, skip this step. A plan gets one review.
+
+### Step 1.3 — Agree on the plan
 
 The person must read the full plan before the approval question. A file read by the
 orchestrator is not visible to the person. For this reason:
@@ -163,21 +174,24 @@ orchestrator is not visible to the person. For this reason:
    design and the test plan are in the file at <path>." For `professional`, write
    the full plan, with the reuse survey first and this sentence above it: "Check the
    reuse survey first. A wrong row costs nothing to change now."
-3. Ask: "Do you approve this plan?" Offer "Approve the plan" and "Change the plan".
+3. If the plan review ran, add its result: the count of findings, the count that
+   the architect fixed, and each finding that the architect contested, with the
+   reason. Give the path of `RUN_DIR/plan-review.md`.
+4. Ask: "Do you approve this plan?" Offer "Approve the plan" and "Change the plan".
    If the plan splits the item, add: "Approval creates <N> child items, and the crew
    opens one pull request for each."
-4. If the person wants changes, send them to the architect. Go back to Step 1.1.
-5. Repeat until the person approves. Show the new plan each time.
+5. If the person wants changes, send them to the architect. Go back to Step 1.1.
+6. Repeat until the person approves. Show the new plan each time.
 
 Do not continue before the person approves.
 
-### Step 1.3 — Post the plan to the tracker
+### Step 1.4 — Post the plan to the tracker
 
 Do the Comment operation with `RUN_DIR/tracker-plan-comment.md`. If the plan splits
-the item, skip this step. Step 1.4 posts it after the children exist. If the
+the item, skip this step. Step 1.5 posts it after the children exist. If the
 operation fails, show the output and continue.
 
-### Step 1.4 — Create the children and list the work units
+### Step 1.5 — Create the children and list the work units
 
 A work unit gives one pull request. If the plan says "No split", the item is the only
 unit:
@@ -351,8 +365,8 @@ With `forge.kind: none`, skip 1 to 4. Tell the person the branch name, the
 
 ## Step 6 — Retrospective
 
-1. Resume the architect with the paths of the plan, the plan changes, every QA round
-   file, and each UX report. If the plan split the item, add `DIFF_LINES` of each
+1. Resume the architect with the paths of the plan, the plan changes, the plan
+   review, every QA round file, and each UX report. If the plan split the item, add `DIFF_LINES` of each
    child.
 2. The architect writes `RUN_DIR/tracker-retro-comment.md`.
 3. Show the "For you" line of the retrospective to the person, and the path of the
@@ -400,4 +414,6 @@ it to write the retrospective only.
 - Do not remove a worktree without the consent of the person.
 - In `--feedback` mode, do not post a reply or resolve a thread before the person
   agrees. Do not resolve a thread that the crew did not fix.
+- In `--feedback` mode, merge the base branch to end a conflict. Do not rebase.
+- Do not ask the person to approve a plan before the plan review of Step 1.2 ends.
 - Do not approve, merge, or request a reviewer on the pull request.

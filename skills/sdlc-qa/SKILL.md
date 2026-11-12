@@ -83,6 +83,7 @@ Compare the diff with the plan. Add a finding for each of these conditions:
 | The pull request body has no `## User impact` section, or the section uses terms the person does not know | SHOULD FIX |
 | The pull request body is not terse: filler, background, or a repeat of the diff or the plan | SHOULD FIX |
 | A changed line adds a comment that is not a directive | SHOULD FIX |
+| Added prose or the pull request body has a pattern of `../sdlc-review/references/prose-pass.md`, "QA check" | SHOULD FIX |
 | The changelog entry that the plan names is missing or wrong | SHOULD FIX |
 
 If `ROUND` is more than 1, check each earlier finding. If a finding is not fixed and

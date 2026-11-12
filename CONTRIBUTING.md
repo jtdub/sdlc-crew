@@ -28,6 +28,19 @@ Sources: agentskills.io/specification, code.claude.com/docs/en/skills and
 /core/subagents, docs.github.com/en/copilot/concepts/agents/about-agent-skills and
 the custom agents page.
 
+## Verified facts about the optional skills
+
+| Skill | Fact the crew relies on | Verified |
+|---|---|---|
+| `egm` | `egm-review` and `egm-review-loop` set `disable-model-invocation: true`, so the crew cannot invoke them. It starts the reviewer personas directly. | 2026-11-11 |
+| `egm` | Claude Code registers the reviewers as `egm:egm-design`, `egm:egm-comprehension`, `egm:egm-implementation-readiness`, and `egm:egm-codebase-details`, with `omitClaudeMd: true`. Other harnesses read `agents/<file>.md` from the install. | 2026-11-11 |
+| `egm` | The standards are `resources/document_standards/feature-spec-standard.md` and `implementation-readiness-standard.md`. | 2026-11-11 |
+| `humanizer` | In "Pasted text" mode it returns a rewrite and changes no file. In "File mode" it writes the file. The crew gives it text. | 2026-11-11 |
+
+Sources: github.com/google/elephant-goldfish-model (`skills/egm-review/SKILL.md`,
+`.claude-plugin/agents/`, `docs/harnesses.md`) and github.com/blader/humanizer
+(`SKILL.md`, version 4.0.0).
+
 ## Style
 
 - Write all documentation and all persona prose in ASD-STE100 Simplified Technical
