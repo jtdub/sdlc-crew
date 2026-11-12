@@ -189,6 +189,8 @@ Then update the pull request body with the Update PR operation of the forge file
    one line for accessibility: the count of violations in the changed parts of the
    pages, and the count of existing issues.
 4. Keep the additions terse. Do not repeat content that the body already has.
+5. Do the prose pass of `../sdlc-review/references/prose-pass.md` on the sections
+   that you add. Do not change the other sections.
 
 For `STATUS: NO_UI`, add only a `## UX test result` section with the reason.
 

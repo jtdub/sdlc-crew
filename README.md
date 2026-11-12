@@ -78,7 +78,13 @@ want"`.
 You describe the change, or name a work item
    │
    ▼
-Architect ◄──► You         questions until nothing is unclear, then plan approval
+Architect ◄──► You         questions until nothing is unclear
+   │
+   ▼
+Fresh reviewers            read only the plan and the code, find what the plan
+   │                       does not state; the architect fixes or contests each
+   ▼
+You                        plan approval
    │  plan posted to the work item; a large change splits into child items
    ▼
 ┌─ for each work item, in dependency order ────────────────────────────────────
@@ -140,10 +146,25 @@ change the place.
 /sdlc-crew --feedback 42
 ```
 
-The crew reads the open review comments of pull request 42. QA judges each comment
-against the code. You agree on which comments to fix. The engineer fixes them in the
-worktree and pushes. The crew replies to each comment, and resolves the threads that
-it fixed, after you agree.
+The crew collects the open items of pull request 42: the review comments, from
+people and from review bots, the CI checks that failed, and a merge conflict with the
+base branch. QA judges each comment against the code. You agree on what to fix. The
+engineer merges the base branch to end a conflict, fixes the comments and the checks
+in the worktree, and pushes. The crew waits for the checks again. It replies to each
+comment, and resolves the threads that it fixed, after you agree.
+
+## Optional skills that the crew uses
+
+The crew works without these. Install them for better results.
+
+| Skill | What the crew does with it | Without it |
+|---|---|---|
+| [Elephant-Goldfish Model](https://github.com/google/elephant-goldfish-model) (`egm`) | Before you approve a plan, EGM reviewers read only the plan and the code that it cites. They did not see the conversation, so they find the assumptions that the plan does not state. | One built-in reviewer with no earlier context does the same check. |
+| [humanizer](https://github.com/blader/humanizer) | Removes the patterns of AI writing from the pull request body, the work item comments, and the replies to reviewers. | The crew uses a short built-in list of patterns. |
+
+Set `plan_review` in `.sdlc-crew.yaml` to `auto` (the default), `egm`, `fresh`, or
+`none`. A fresh review needs subagents. In GitHub Copilot CLI, which runs the
+personas inline, the review does not run.
 
 ## Tools and models
 

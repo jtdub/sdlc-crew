@@ -149,7 +149,8 @@ Add the changelog entry that the plan names:
    how the user finds it.
 5. Add a section `## Project basics added` when Step 1.4 applied, with one sentence
    for each item.
-6. Write the body to `RUN_DIR/pr-body.md`.
+6. Write the body to `RUN_DIR/pr-body.md`. Do the prose pass of
+   `../sdlc-review/references/prose-pass.md` on it.
 7. Measure the diff with the command of the forge README. Record `DIFF_LINES`.
 8. Do the Open PR operation of the forge file. With `forge.kind: none`, skip the
    push and the pull request, and record the branch name.
@@ -229,3 +230,28 @@ The orchestrator sends you the name and the link of each failed check.
 
 Return `STATUS: FIXED` with one line for each failed check: the name, the cause, and
 the commit.
+
+## Step 8 — Merge the base branch
+
+The orchestrator sends this step in `--feedback` mode when the branch has a conflict
+with the base branch.
+
+1. Run `git pull --ff-only` in `WORK_DIR`. Then run:
+
+   ```bash
+   git fetch origin "$BASE_BRANCH"
+   git merge --no-ff --no-commit "origin/$BASE_BRANCH"
+   ```
+
+2. For each file with a conflict, read both sides and the commits that changed them.
+   Keep the intent of both sides. If the two sides need a decision about behavior,
+   run `git merge --abort` and return `STATUS: QUESTIONS` with the file, both sides,
+   and the options.
+3. Run the full test suite. If a test fails because of the merge, fix the cause.
+4. Commit with the message `<ID>: Merge <BASE_BRANCH>`, and push.
+
+Do not rebase. Do not force-push. Do not take one side of a whole file to end a
+conflict, unless the other side is a change that the base branch already contains.
+
+Return `STATUS: FIXED` with the files that had a conflict, how you resolved each
+one, the test result, and the commit.

@@ -216,7 +216,8 @@ Write `RUN_DIR/plan.md` with these sections:
 Also write `RUN_DIR/tracker-plan-comment.md` for the person and for anyone who reads
 the work item. Start with three short paragraphs: the problem, the decision, and the
 scope. Then give the acceptance criteria. Then give the technical design under the
-heading "Technical detail".
+heading "Technical detail". Do the prose pass of
+`../sdlc-review/references/prose-pass.md` on this file.
 
 ### Step 4.1 — Estimate the size and split the item
 
@@ -261,6 +262,32 @@ plan splits the item, add the count of children to the summary.
 
 If the person asks for changes to the plan, update both files. Ask again if a change
 opens a new gap.
+
+### Step 4.2 — Resolve the plan review findings
+
+The orchestrator sends `RUN_DIR/plan-review.md`. Reviewers that did not see the
+conversation wrote it. Judge each finding against the code and the decisions of the
+person, not against your memory of the conversation.
+
+For each finding, select one verdict:
+
+- `FIX` — the finding is correct. Change the plan.
+- `CONTEST` — the finding is wrong. Give the evidence: a `path:line`, or the quoted
+  decision of the person.
+- `ASK` — only the person can decide. Write the question.
+
+Rules:
+
+- If a finding shows that the plan needs an assumption, write the assumption in the
+  plan, or ask the person. Do not keep it unstated.
+- Do not change a decision of the person to resolve a finding. Ask.
+- Update `RUN_DIR/tracker-plan-comment.md` when a fix changes its content.
+
+Add a column "Resolution" to the table of `RUN_DIR/plan-review.md`, with the verdict
+and one sentence.
+
+If one or more findings are `ASK`, return `STATUS: QUESTIONS` with the questions.
+Otherwise return `STATUS: PLAN` with the counts of `FIX` and `CONTEST`.
 
 ## Step 5 — Create the child items
 
@@ -307,6 +334,8 @@ these sections:
 - **Item readiness** — the readiness items that were missing at the start, or
   "Ready".
 - **What the plan got wrong** — the plan changes and the reason for each.
+- **What the plan review found** — the count of findings that you fixed and
+  contested, and each later defect that the review did not find. Or "Not run".
 - **What QA found** — the count of findings by priority, and the types of defects.
 - **What UX found** — the user experience result.
 - **Size** — if the plan split the item, the estimated and the measured line count of
@@ -315,4 +344,5 @@ these sections:
 - **For you** — one plain-language sentence for the person: what to do differently
   next time when they describe a change, or "Nothing. The description was complete."
 
-Keep the retrospective to 20 lines or less. Return the path.
+Keep the retrospective to 20 lines or less. Do the prose pass of
+`../sdlc-review/references/prose-pass.md` on it. Return the path.

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a review of the plan before you approve it, by reviewers that did not see the conversation. Set `plan_review`; the crew uses the `egm` plugin when it is installed.
+- Added a pass that removes AI writing patterns from pull request bodies and comments. The crew uses the `humanizer` skill when it is installed.
+- Added failed CI checks and merge conflicts to `/sdlc-crew --feedback`. The crew merges the base branch, fixes the checks, and waits for them again.
 - Added a CI step. The crew waits for the checks of the code host, and the engineer fixes failed checks, up to `limits.max_ci_rounds` rounds, before the pull request becomes ready.
 - Added an evidence report of the engineer. It lists the framework code that the engineer read, the callers that it updated, and the real test output. QA spot-checks it.
 - Added a result for each acceptance criterion in the QA report: pass, fail, or unverified, with evidence.
