@@ -120,7 +120,7 @@ Three more skills stand alone:
   `--change models` to change one part.
 - `sdlc-review` — one consolidated review of any pull request or branch, with
   findings you can post as comments.
-- `sdlc-loop` — one pass of the crew loop. See "Run the crew in a loop".
+- `sdlc-loop`: one pass of the crew loop. See "Run the crew in a loop".
 
 ## Where the work is tracked
 

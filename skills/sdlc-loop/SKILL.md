@@ -44,22 +44,22 @@ Write all prose in ASD-STE100 Simplified Technical English. Follow
 
 ## References
 
-- `../sdlc-crew/references/config-schema.md` — the keys of `.sdlc-crew.yaml`, with
+- `../sdlc-crew/references/config-schema.md`: the keys of `.sdlc-crew.yaml`, with
   the `loop` section.
 - `../sdlc-crew/references/trackers/github.md` and
-  `../sdlc-crew/references/trackers/local.md` — the tracker operations.
-- `../sdlc-crew/references/forges/github.md` — the forge operations.
-- `../sdlc-crew/references/feedback.md` — which pull request comments are open.
-- `scripts/ready_queue.py` — the script that keeps the ready label in step with the
+  `../sdlc-crew/references/trackers/local.md`: the tracker operations.
+- `../sdlc-crew/references/forges/github.md`: the forge operations.
+- `../sdlc-crew/references/feedback.md`: which pull request comments are open.
+- `scripts/ready_queue.py`: the script that keeps the ready label in step with the
   blockers and prints the queue.
 
-## Step 0 — Pass guard
+## Step 0: Pass guard
 
 Do this step before anything else. A harness can start a pass while an earlier pass
 still runs, for example while the crew waits for a plan approval. Two passes at one
 time can start the same item twice.
 
-### Step 0.1 — Read the config
+### Step 0.1: Read the config
 
 1. Read `.sdlc-crew.yaml` from the repository root. If it does not exist, stop the
    loop. Tell the person to run `sdlc-setup` first.
@@ -72,7 +72,7 @@ time can start the same item twice.
    in the repository, as `sdlc-crew` Step 0 says. Set `LOCK` to
    `LOOP_DIR/loop.lock`.
 
-### Step 0.2 — Check the lock
+### Step 0.2: Check the lock
 
 If `LOCK` does not exist, go to Step 0.3. Otherwise read it. It holds the lines
 `pass:`, `item:`, and `started:`.
@@ -95,7 +95,7 @@ find "$LOCK" -mmin +$(( LOCK_STALE_HOURS * 60 ))
 
 The command prints the path when the lock is older than the limit.
 
-### Step 0.3 — Take the lock
+### Step 0.3: Take the lock
 
 Make a pass ID from the time and a random part, for example
 `20261112-0930-4821`. Write the lock so that the write fails when the file exists:
@@ -111,7 +111,7 @@ If the write fails, another pass took the lock first. Go to Step 0.2.
 When the pass picks an item or a pull request, replace the `item:` line. Before you
 remove the lock, read it. Remove it only if its `pass:` line is your `PASS_ID`.
 
-### Step 0.4 — Check the tracker
+### Step 0.4: Check the tracker
 
 Find each open item whose status is `tracker.statuses.in_progress`:
 
@@ -124,7 +124,7 @@ session stopped before it opened the pull request. Tell the person in one line:
 "<ID> is in progress with no pull request. The loop waits. Set the item back to
 <todo> to let the loop take it." End the pass.
 
-## Step 1 — Refresh the queue
+## Step 1: Refresh the queue
 
 1. Run `git fetch origin`. Do not switch the branch of the checkout of the person,
    and do not pull into it.
@@ -148,7 +148,7 @@ A blocker is an item that must close first:
 | `github` | A body line that starts with `Blocked by`, for example `Blocked by #12, #15`, and the "blocked by" issue dependencies of GitHub. |
 | `local` | The line `- Blocked by: LOCAL-2, LOCAL-5` of the item in `BACKLOG.md`. |
 
-## Step 2 — Act on the open crew pull requests first
+## Step 2: Act on the open crew pull requests first
 
 With `forge.kind: none`, skip this step. List the open crew pull requests:
 
@@ -175,7 +175,7 @@ branch name. Then do the first rule that applies:
 
 If no rule applies, go to Step 3.
 
-## Step 3 — Pick the next item
+## Step 3: Pick the next item
 
 Take the first item of the queue from Step 1 that no open pull request closes. The
 queue already leaves out each item with a label of `loop.skip_labels`, and each
@@ -188,7 +188,7 @@ item in progress or in review.
 
 Write the item ID to the `item:` line of the lock.
 
-## Step 4 — Build it
+## Step 4: Build it
 
 Run the `sdlc-crew` skill with the item ID. The crew plans, asks the person to
 approve the plan, builds, runs QA and UX, waits for CI, and marks the pull request
@@ -204,7 +204,7 @@ because the person stops it:
    sentences.
 3. End the pass.
 
-## Step 5 — Check that the pull request closes the item
+## Step 5: Check that the pull request closes the item
 
 With `forge.kind: none`, skip this step and Step 6. Tell the person the branch name.
 End the pass.
@@ -218,7 +218,7 @@ For the GitHub tracker, if the item number is not in the list, add the line
 local tracker, check that the `- Pull request:` line of the item holds the URL. If
 it does not, do the Link PR operation.
 
-## Step 6 — The merge gate
+## Step 6: The merge gate
 
 The loop never merges a pull request itself. It can ask GitHub to merge a pull
 request after the required checks pass. Do the first rule that applies:
