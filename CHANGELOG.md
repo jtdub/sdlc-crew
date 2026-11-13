@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-12
+
 ### Added
 
 - Added the `sdlc-loop` skill. Each pass fixes an open crew pull request or takes the next ready item to a pull request. Run it with `/loop /sdlc-loop`.
-- Added the `loop` section to `.sdlc-crew.yaml`, with the labels, the pick order, the merge method, and the lock timeout of the loop.
+- Added the `loop` section to `.sdlc-crew.yaml`, with the labels, the pick order, and the lock timeout. Auto-merge stays off until you set `loop.auto_merge: true`.
 - Added a review of the plan before you approve it, by reviewers that did not see the conversation. Set `plan_review`; the crew uses the `egm` plugin when it is installed.
 - Added a pass that removes AI writing patterns from pull request bodies and comments. The crew uses the `humanizer` skill when it is installed.
 - Added failed CI checks and merge conflicts to `/sdlc-crew --feedback`. The crew merges the base branch, fixes the checks, and waits for them again.
