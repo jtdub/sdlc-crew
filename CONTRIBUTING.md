@@ -28,6 +28,17 @@ Sources: agentskills.io/specification, code.claude.com/docs/en/skills and
 /core/subagents, docs.github.com/en/copilot/concepts/agents/about-agent-skills and
 the custom agents page.
 
+## Verified facts about the loop
+
+| Fact the `sdlc-loop` skill relies on | Verified |
+|---|---|
+| Claude Code `/loop [interval] <prompt or slash command>` repeats a prompt. Without an interval, the model sets the time of the next pass. | 2026-11-12 |
+| The GitHub GraphQL `Issue.blockedBy` connection gives the "blocked by" issue dependencies, with `number`, `state`, and `repository`. | 2026-11-12 |
+| `GET /repos/{owner}/{repo}/rules/branches/{branch}` gives the ruleset rules of a branch, with the type `required_status_checks`. | 2026-11-12 |
+
+Sources: the `loop` skill description of Claude Code, and read-only calls with `gh api`
+to a GitHub repository.
+
 ## Verified facts about the optional skills
 
 | Skill | Fact the crew relies on | Verified |

@@ -37,7 +37,7 @@ expect_absent() {
     fi
 }
 
-SKILLS=(sdlc-crew sdlc-setup sdlc-architect sdlc-engineer sdlc-qa sdlc-ux sdlc-review)
+SKILLS=(sdlc-crew sdlc-setup sdlc-architect sdlc-engineer sdlc-qa sdlc-ux sdlc-review sdlc-loop)
 PERSONAS=(sdlc-architect sdlc-engineer sdlc-qa sdlc-ux)
 
 export HOME="$TMP/home"

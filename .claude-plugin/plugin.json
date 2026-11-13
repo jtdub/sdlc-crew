@@ -1,6 +1,6 @@
 {
   "name": "sdlc-crew",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A crew of four personas (architect, engineer, QA, UX) that takes a plain-language request or an issue to a pull request that is ready for a human to review. Works with a local backlog, GitHub Issues, GitLab, Jira, or Bitbucket.",
   "author": {
     "name": "jtdub",
