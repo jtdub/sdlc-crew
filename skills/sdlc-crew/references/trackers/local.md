@@ -33,6 +33,15 @@ recipe by ingredient.
 
 The ID is `LOCAL-<n>`. `<n>` is one more than the largest number in the file.
 
+Two lines are optional. The `sdlc-loop` skill reads them:
+
+- `- Blocked by: LOCAL-2, LOCAL-5` lists the items that must be `Done` first. Write
+  `none` or leave the line out when no item blocks it.
+- `- Labels: needs-human` lists labels, with a comma between two labels. The loop
+  does not pick an item with a label of `loop.skip_labels`.
+
+Put them after `- Pull request:`.
+
 ## Operations
 
 ### Read

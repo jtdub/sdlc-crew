@@ -76,3 +76,25 @@ limits:
   max_pr_lines: 500
   max_qa_rounds: 3
   max_ci_rounds: 3
+
+# The sdlc-loop skill. It does one pass: it acts on an open crew pull request, or
+# takes the next ready item to a pull request. The harness repeats the pass.
+#   ready_label             - set by the loop script when all blockers of an item are closed
+#   skip_labels             - the loop never picks an item with one of these labels
+#   needs_human_label       - added by the loop when an item needs a decision of a person
+#   human_merge_label       - the loop never turns on auto-merge for these items
+#   max_waiting_human_merge - the loop stops when this many pull requests wait for a person
+#   merge_method            - squash | merge | rebase, for auto-merge
+#   order                   - milestone | priority | number, in the order to compare
+#   priority_labels         - the highest priority first
+#   lock_stale_hours        - after this age the loop reports the lock of a pass as stale
+loop:
+  ready_label: "status:ready"
+  skip_labels: ["needs-human", "type:epic"]
+  needs_human_label: "needs-human"
+  human_merge_label: "human-merge"
+  max_waiting_human_merge: 3
+  merge_method: squash
+  order: [milestone, priority, number]
+  priority_labels: ["priority:p0", "priority:p1", "priority:p2"]
+  lock_stale_hours: 6

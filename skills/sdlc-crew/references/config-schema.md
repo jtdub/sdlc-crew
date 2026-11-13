@@ -39,6 +39,15 @@ does not set. Each key has the default in the table.
 | `limits.max_pr_lines` | `500` | The maximum count of non-generated changed lines in one pull request. |
 | `limits.max_qa_rounds` | `3` | The maximum count of QA review and fix rounds for one pull request. |
 | `limits.max_ci_rounds` | `3` | The maximum count of CI check and fix rounds for one pull request before the crew asks the person. |
+| `loop.ready_label` | `status:ready` | The label that the `sdlc-loop` script puts on an item when all its blockers are closed. |
+| `loop.skip_labels` | `["needs-human", "type:epic"]` | The loop never picks an item with one of these labels. |
+| `loop.needs_human_label` | `needs-human` | The label that the loop adds when an item needs a decision of a person. The item keeps the ready label, and goes back to the queue when a person removes this label. |
+| `loop.human_merge_label` | `human-merge` | The loop opens the pull request of an item with this label, but never turns on auto-merge. A person reviews and merges it. |
+| `loop.max_waiting_human_merge` | `3` | The loop stops when this count of pull requests waits for a person to merge them. |
+| `loop.merge_method` | `squash` | `squash`, `merge`, or `rebase`. The method of the auto-merge that the loop turns on. |
+| `loop.order` | `[milestone, priority, number]` | The order in which the loop picks ready items. `milestone` is the lowest open milestone first. `priority` follows `loop.priority_labels`. `number` is the lowest item number first. |
+| `loop.priority_labels` | `["priority:p0", "priority:p1", "priority:p2"]` | The priority labels, the highest priority first. An item with none of them comes after the others. |
+| `loop.lock_stale_hours` | `6` | The age in hours after which the loop reports the lock of a pass as stale. The loop does not remove a stale lock. |
 
 ## Experience levels
 
