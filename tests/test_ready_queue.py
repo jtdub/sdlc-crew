@@ -196,6 +196,17 @@ class LocalTrackerTest(unittest.TestCase):
         self.assertIn("LOCAL-2: Add a search box", out.getvalue())
 
 
+class ReadSettingsTest(unittest.TestCase):
+    def test_repo_argument_without_config_selects_github(self):
+        with tempfile.TemporaryDirectory() as root:
+            self.assertEqual(rq.read_settings(Path(root), None, "acme/widgets").tracker, "github")
+
+    def test_config_tracker_wins_over_repo_argument(self):
+        with tempfile.TemporaryDirectory() as root:
+            Path(root, ".sdlc-crew.yaml").write_text("tracker:\n  kind: local\n", encoding="utf-8")
+            self.assertEqual(rq.read_settings(Path(root), None, "acme/widgets").tracker, "local")
+
+
 class UnsupportedTrackerTest(unittest.TestCase):
     def test_jira_fails_with_clear_message(self):
         with tempfile.TemporaryDirectory() as root:

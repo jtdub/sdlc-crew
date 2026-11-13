@@ -305,13 +305,18 @@ def display(item: Item) -> str:
     return item.key if item.key.startswith("LOCAL-") else f"#{item.key}"
 
 
-def read_settings(root: Path, tracker: str | None) -> Settings:
-    """Return the settings of the repository at root."""
+def read_settings(root: Path, tracker: str | None, repo: str | None = None) -> Settings:
+    """Return the settings of the repository at root.
+
+    Without a config file, a repo argument selects the GitHub tracker.
+    """
     path = root / CONFIG_FILE
     config = parse_config(path.read_text(encoding="utf-8")) if path.is_file() else {}
     settings = settings_from_config(config)
     if tracker:
         settings.tracker = tracker
+    elif repo and not config:
+        settings.tracker = "github"
     return settings
 
 
@@ -326,7 +331,7 @@ def main(argv: list[str] | None = None) -> int:
     root = Path(args.root)
 
     try:
-        settings = read_settings(root, args.tracker)
+        settings = read_settings(root, args.tracker, args.repo)
         if settings.tracker == "github":
             repo = args.repo or settings.repo or repo_from_remote(
                 run(["git", "-C", str(root), "remote", "get-url", "origin"]))
