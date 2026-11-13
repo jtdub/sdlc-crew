@@ -114,12 +114,13 @@ Retrospective posted to the work item, with one lesson for you
 | Quality assurance | `sdlc-qa` | Reviews the change against the plan and a security checklist. Gives each acceptance criterion a result: pass, fail, or unverified. Spot-checks the evidence report. Sends only in-scope findings to the engineer. |
 | User experience | `sdlc-ux` | Starts the app and uses the change as a person does. Checks accessibility and the keyboard. Takes screenshots. Writes what changes for the user. |
 
-Two more skills stand alone:
+Three more skills stand alone:
 
 - `sdlc-setup` — the first-run setup. Run it again with `--change tracker` or
   `--change models` to change one part.
 - `sdlc-review` — one consolidated review of any pull request or branch, with
   findings you can post as comments.
+- `sdlc-loop` — one pass of the crew loop. See "Run the crew in a loop".
 
 ## Where the work is tracked
 
@@ -152,6 +153,31 @@ base branch. QA judges each comment against the code. You agree on what to fix. 
 engineer merges the base branch to end a conflict, fixes the comments and the checks
 in the worktree, and pushes. The crew waits for the checks again. It replies to each
 comment, and resolves the threads that it fixed, after you agree.
+
+## Run the crew in a loop
+
+The `sdlc-loop` skill does one pass. Your tool repeats it. In Claude Code:
+
+```text
+/loop /sdlc-loop
+```
+
+Each pass does one thing:
+
+1. It fixes an open crew pull request that has a failed check or an open comment,
+   with `/sdlc-crew --feedback`.
+2. Or it takes the next ready item to a pull request with `/sdlc-crew`. An item is
+   ready when every item that blocks it is closed. Write the blockers as a
+   `Blocked by #12` line in a GitHub issue, or as a `- Blocked by: LOCAL-2` line in
+   `BACKLOG.md`. GitHub issue dependencies also count.
+3. Or it stops, when the queue is empty or too many pull requests wait for you.
+
+The loop still asks you to approve each plan. It turns on auto-merge only when the
+base branch has required status checks, and never for an item with the
+`human-merge` label. Otherwise it leaves the pull request for you. A lock file stops
+a second pass while one runs. The loop reports an old lock to you and does not
+remove it. The `loop` section of `.sdlc-crew.yaml` holds the labels and the limits.
+The loop works with GitHub Issues or `BACKLOG.md`, and with GitHub or no code host.
 
 ## Optional skills that the crew uses
 
@@ -197,7 +223,9 @@ plan again.
 - No secret goes into the code. Secrets come from environment variables.
 - Before an action that deletes data, costs money, or pushes code where others can
   see it, the crew states the risk and asks.
-- The crew never merges, approves, or requests a reviewer. You do.
+- The crew never merges, approves, or requests a reviewer. You do. The one
+  exception is `sdlc-loop`: it can ask GitHub to merge a pull request after the
+  required checks pass, as "Run the crew in a loop" says.
 - Every message to you is in plain, short sentences. Technical names come last, in
   parentheses.
 
@@ -212,6 +240,7 @@ skills/                 the single source of truth, one Agent Skill per director
   sdlc-qa/
   sdlc-ux/
   sdlc-review/
+  sdlc-loop/            one pass of the crew loop, and the ready queue script (scripts/)
 adapters/               thin per-tool files that point at the skills
 .claude-plugin/         the Claude Code plugin and marketplace manifests
 install.sh              links the skills and the adapters; renders the Codex agents
