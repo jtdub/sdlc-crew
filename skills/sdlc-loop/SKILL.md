@@ -170,8 +170,9 @@ branch name. Then do the first rule that applies:
    pass can start in 20 minutes.
 4. Count the crew pull requests that wait for a person: each ready pull request
    whose item has `loop.human_merge_label`, and each ready pull request that the
-   merge gate left for a person. If the count is `loop.max_waiting_for_person` or
-   more, stop the loop. List each pull request with its URL.
+   merge gate left for a person, also because `loop.auto_merge` is `false`. If the
+   count is `loop.max_waiting_for_person` or more, stop the loop. List each pull
+   request with its URL.
 
 If no rule applies, go to Step 3.
 
@@ -221,12 +222,17 @@ it does not, do the Link PR operation.
 ## Step 6: The merge gate
 
 The loop never merges a pull request itself. It can ask GitHub to merge a pull
-request after the required checks pass. Do the first rule that applies:
+request after the required checks pass. It does this only when all three are
+true: `loop.auto_merge` is `true`, the base branch has required status checks, and
+the item does not have `loop.human_merge_label`. Do the first rule that applies:
 
-1. The item has `loop.human_merge_label`. Comment on the pull request: "This pull
+1. `loop.auto_merge` is `false`. Do not turn on auto-merge. Comment on the pull
+   request: "Auto-merge is off for the loop. A person reviews and merges this pull
+   request." Do not post the comment again if the pull request has it. End the pass.
+2. The item has `loop.human_merge_label`. Comment on the pull request: "This pull
    request needs a review and a merge by a person." Do not post the comment again
    if the pull request has it. End the pass.
-2. Find out whether the base branch has required status checks. Run both:
+3. Find out whether the base branch has required status checks. Run both:
 
    ```bash
    gh api "repos/{owner}/{repo}/branches/<base>/protection/required_status_checks" --jq '.contexts'
@@ -236,11 +242,11 @@ request after the required checks pass. Do the first rule that applies:
 
    The base branch has required checks if the first list is not empty, or the
    second count is more than 0. A failed call counts as no required checks.
-3. The base branch has no required checks. Do not turn on auto-merge. Comment on the
+4. The base branch has no required checks. Do not turn on auto-merge. Comment on the
    pull request: "Auto-merge stays off until <base> has required status checks. A
    person reviews and merges this pull request." Do not post the comment again if
    the pull request has it. End the pass.
-4. The base branch has required checks. Run:
+5. The base branch has required checks. Run:
 
    ```bash
    gh pr merge <PR> --<loop.merge_method> --auto
@@ -257,8 +263,9 @@ request after the required checks pass. Do the first rule that applies:
   `loop.lock_stale_hours`.
 - Never remove a lock that another pass wrote. Report a stale lock to the person.
 - Never push to the default branch.
-- Never merge without `--auto`. Never turn on auto-merge for an item with
-  `loop.human_merge_label`, or for a base branch without required status checks.
+- Never merge without `--auto`. Never turn on auto-merge when `loop.auto_merge` is
+  `false`, for an item with `loop.human_merge_label`, or for a base branch without
+  required status checks.
 - Never approve a pull request or request a reviewer.
 - Never close an item directly. The merge closes it.
 - Never change branch protection, rulesets, or repository settings.

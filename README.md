@@ -172,9 +172,10 @@ Each pass does one thing:
    `BACKLOG.md`. GitHub issue dependencies also count.
 3. Or it stops, when the queue is empty or too many pull requests wait for you.
 
-The loop still asks you to approve each plan. It turns on auto-merge only when the
-base branch has required status checks, and never for an item with the
-`human-merge` label. Otherwise it leaves the pull request for you. A lock file stops
+The loop still asks you to approve each plan. By default it never merges: it leaves
+each pull request for you. Set `loop.auto_merge: true` to let it turn on auto-merge.
+It does that only when the base branch has required status checks, and never for
+an item with the `human-merge` label. A lock file stops
 a second pass while one runs. The loop reports an old lock to you and does not
 remove it. The `loop` section of `.sdlc-crew.yaml` holds the labels and the limits.
 The loop works with GitHub Issues or `BACKLOG.md`, and with GitHub or no code host.
@@ -224,8 +225,8 @@ plan again.
 - Before an action that deletes data, costs money, or pushes code where others can
   see it, the crew states the risk and asks.
 - The crew never merges, approves, or requests a reviewer. You do. The one
-  exception is `sdlc-loop`: it can ask GitHub to merge a pull request after the
-  required checks pass, as "Run the crew in a loop" says.
+  exception is `sdlc-loop` with `loop.auto_merge: true`: it can ask GitHub to merge
+  a pull request after the required checks pass, as "Run the crew in a loop" says.
 - Every message to you is in plain, short sentences. Technical names come last, in
   parentheses.
 

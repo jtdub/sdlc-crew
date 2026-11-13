@@ -110,6 +110,7 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(rq.settings_from_config(config), rq.Settings())
         self.assertEqual(config["loop"]["lock_stale_hours"], 6)
         self.assertEqual(config["loop"]["max_waiting_for_person"], 3)
+        self.assertIs(config["loop"]["auto_merge"], False)
 
     def test_hash_inside_quotes_is_not_a_comment(self):
         self.assertEqual(rq.parse_config('a: "x # y"  # note\n'), {"a": "x # y"})

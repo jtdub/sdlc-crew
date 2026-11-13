@@ -84,6 +84,8 @@ limits:
 #   needs_human_label       - added by the loop when an item needs a decision of a person
 #   human_merge_label       - the loop never turns on auto-merge for these items
 #   max_waiting_for_person  - the loop stops when this many crew pull requests wait for a person
+#   auto_merge              - true lets the loop turn on auto-merge, only when the base
+#                             branch has required status checks; false: a person merges
 #   merge_method            - squash | merge | rebase, for auto-merge
 #   order                   - milestone | priority | number, in the order to compare
 #   priority_labels         - the highest priority first
@@ -94,6 +96,7 @@ loop:
   needs_human_label: "needs-human"
   human_merge_label: "human-merge"
   max_waiting_for_person: 3
+  auto_merge: false
   merge_method: squash
   order: [milestone, priority, number]
   priority_labels: ["priority:p0", "priority:p1", "priority:p2"]

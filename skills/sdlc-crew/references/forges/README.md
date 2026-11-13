@@ -24,7 +24,8 @@ Rules for every forge:
 
 - Never force-push. Never rewrite a commit that is on the remote.
 - Never merge, approve, or request a reviewer. A human does the review. The
-  `sdlc-loop` skill can turn on auto-merge under the rules of its merge gate.
+  `sdlc-loop` skill can turn on auto-merge when `loop.auto_merge` is `true`, under
+  the rules of its merge gate.
 - Before the first push to a remote, tell the person in one sentence that the push
   makes the branch visible to everyone who can see the repository.
 - With `forge.kind: none`, do Worktree only. Commit on the branch. Tell the person the
