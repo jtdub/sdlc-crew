@@ -116,6 +116,26 @@ whose answer is certain from Step 1, and say what you assumed.
 
 Do not ask. Keep the defaults. Mention them in one sentence at the end.
 
+### Section `loop`
+
+Do not ask for the values. Keep the defaults of the `loop` section.
+
+12. **[Loop]** Ask this only for `tracker.kind: github`. "Do you want the labels of
+    the crew loop? The `sdlc-loop` skill takes the ready issues one after another."
+    Options: "Not now (Recommended)", "Yes, create the labels". For yes, tell the
+    person that the labels are visible to everyone who can see the repository. In
+    Step 3, create each label that does not exist. Do not change a label that
+    exists:
+
+    ```bash
+    gh label create "<loop.ready_label>" --color 0E8A16 --description "sdlc-loop: all blockers are closed"
+    gh label create "<loop.needs_human_label>" --color D93F0B --description "sdlc-loop: needs a decision of a person"
+    gh label create "<loop.human_merge_label>" --color 5319E7 --description "sdlc-loop: a person merges the pull request"
+    ```
+
+For `tracker.kind: local`, the loop needs no label. Say in one sentence that an item
+can have the lines `- Blocked by:` and `- Labels:`, as `trackers/local.md` says.
+
 ## Step 3 — Write the files
 
 1. Write `.sdlc-crew.yaml` at `REPO_DIR`. Start from `../sdlc-crew/assets/sdlc-crew.yaml`, and set each value from the
