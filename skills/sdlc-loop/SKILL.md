@@ -168,10 +168,10 @@ branch name. Then do the first rule that applies:
    continue the saved run. End the pass.
 3. A pull request has auto-merge on, and a check still runs. End the pass. The next
    pass can start in 20 minutes.
-4. Count the pull requests that wait for a person to merge them: each ready pull
-   request whose item has `loop.human_merge_label`, and each ready pull request that
-   the merge gate left for the person. If the count is `loop.max_waiting_human_merge`
-   or more, stop the loop. List each pull request with its URL.
+4. Count the crew pull requests that wait for a person: each ready pull request
+   whose item has `loop.human_merge_label`, and each ready pull request that the
+   merge gate left for a person. If the count is `loop.max_waiting_for_person` or
+   more, stop the loop. List each pull request with its URL.
 
 If no rule applies, go to Step 3.
 

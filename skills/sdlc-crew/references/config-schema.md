@@ -43,7 +43,7 @@ does not set. Each key has the default in the table.
 | `loop.skip_labels` | `["needs-human", "type:epic"]` | The loop never picks an item with one of these labels. |
 | `loop.needs_human_label` | `needs-human` | The label that the loop adds when an item needs a decision of a person. The item keeps the ready label, and goes back to the queue when a person removes this label. |
 | `loop.human_merge_label` | `human-merge` | The loop opens the pull request of an item with this label, but never turns on auto-merge. A person reviews and merges it. |
-| `loop.max_waiting_human_merge` | `3` | The loop stops when this count of pull requests waits for a person to merge them. |
+| `loop.max_waiting_for_person` | `3` | The loop stops when this count of crew pull requests waits for a person: the pull requests of `loop.human_merge_label` items, and the pull requests that the merge gate left for a person. |
 | `loop.merge_method` | `squash` | `squash`, `merge`, or `rebase`. The method of the auto-merge that the loop turns on. |
 | `loop.order` | `[milestone, priority, number]` | The order in which the loop picks ready items. `milestone` is the lowest open milestone first. `priority` follows `loop.priority_labels`. `number` is the lowest item number first. |
 | `loop.priority_labels` | `["priority:p0", "priority:p1", "priority:p2"]` | The priority labels, the highest priority first. An item with none of them comes after the others. |

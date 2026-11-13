@@ -83,7 +83,7 @@ limits:
 #   skip_labels             - the loop never picks an item with one of these labels
 #   needs_human_label       - added by the loop when an item needs a decision of a person
 #   human_merge_label       - the loop never turns on auto-merge for these items
-#   max_waiting_human_merge - the loop stops when this many pull requests wait for a person
+#   max_waiting_for_person  - the loop stops when this many crew pull requests wait for a person
 #   merge_method            - squash | merge | rebase, for auto-merge
 #   order                   - milestone | priority | number, in the order to compare
 #   priority_labels         - the highest priority first
@@ -93,7 +93,7 @@ loop:
   skip_labels: ["needs-human", "type:epic"]
   needs_human_label: "needs-human"
   human_merge_label: "human-merge"
-  max_waiting_human_merge: 3
+  max_waiting_for_person: 3
   merge_method: squash
   order: [milestone, priority, number]
   priority_labels: ["priority:p0", "priority:p1", "priority:p2"]
