@@ -29,6 +29,17 @@ jobs:
       - name: Validate every skill
         run: tests/validate_skills.sh
 
+  python:
+    name: Python scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Run the unit tests
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+
   plugin:
     name: Claude Code plugin manifest
     runs-on: ubuntu-latest
