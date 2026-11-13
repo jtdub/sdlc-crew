@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 SCRIPT = Path(__file__).resolve().parent.parent / "skills" / "sdlc-loop" / "scripts" / "ready_queue.py"
+TEMPLATE = SCRIPT.parents[2] / "sdlc-crew" / "assets" / "sdlc-crew.yaml"
 SPEC = importlib.util.spec_from_file_location("ready_queue", SCRIPT)
 rq = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = rq
@@ -103,6 +104,11 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(settings.ready_label, "status:ready")
         self.assertEqual(settings.skip_labels, ["needs-human", "type:epic"])
         self.assertEqual(settings.order, ["milestone", "priority", "number"])
+
+    def test_shipped_template_gives_the_documented_defaults(self):
+        config = rq.parse_config(TEMPLATE.read_text(encoding="utf-8"))
+        self.assertEqual(rq.settings_from_config(config), rq.Settings())
+        self.assertEqual(config["loop"]["lock_stale_hours"], 6)
 
     def test_hash_inside_quotes_is_not_a_comment(self):
         self.assertEqual(rq.parse_config('a: "x # y"  # note\n'), {"a": "x # y"})
